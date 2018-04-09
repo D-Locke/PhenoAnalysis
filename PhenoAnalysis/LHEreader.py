@@ -140,8 +140,8 @@ def readLHE(args):
     tree = ET.parse(name)
     root = tree.getroot()
     
-    numberOfEntries=len(root)
-    obj=LHEData(numberOfEntries,LoadEvents,luminosity,label,type,model,process,plotStyle)
+    numberOfEntries = len(root)
+    obj = LHEData(numberOfEntries,LoadEvents,luminosity,label,type,model,process,plotStyle)
     print "\n\nReading LHE file...\n"
 
     eventCounter=0
@@ -164,14 +164,14 @@ def readLHE(args):
                 e.__addParticle__(p)
             obj.__addEvent__(e)
 
-    if os.path.isfile('./data/'+obj.label+'_'+str(obj.LoadEvents)+'_obs.dat'):
+    if os.path.isfile('./data/'+obj.label+'_'+str(obj.LoadEvents)+'_obs_lhe.dat'):
         print "\nDataframe already stored, loading {file} ...\n".format(file='./data/'+obj.label+'_'+str(obj.LoadEvents)+'_obs_lhe.dat')
-        obj.obs=pd.read_csv('./data/'+obj.label+'_'+str(obj.LoadEvents)+'_obs.dat', sep='\t')
+        obj.obs=pd.read_csv('./data/'+obj.label+'_'+str(obj.LoadEvents)+'_obs_lhe.dat', sep='\t')
     else:
         for event in obj.events:
             jets = event.getParticlesByIDs([1,2,3,4,5,6,-1,-2,-3,-4,-5,-6])
-            muons=event.getParticlesByIDs([13,-13])
-            if len(jets) >= process["Njets"] and len(muons) == process["Nmuons"]:
+            muons=event.getParticlesByIDs([13])
+            if len(jets) == process["Njets"] and len(muons) == process["Nmuons"]:
                 observ = { 'EventWeight' : EventWeight*luminosity*1000/LoadEvents }
                 for obs in observables:
                 #JET1,JET2,MUON = partList

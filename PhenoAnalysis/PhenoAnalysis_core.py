@@ -26,20 +26,24 @@ class Logger:
 
 def parallel_readROOT(args):
     """parallelizes reading of .root and storage of observables dataframe"""
+    sys.stdout = Logger("./cutNplot/ROOT/RUN_INFO.log")
     p = multiprocessing.Pool()
     objects = p.map(readROOT, args)
     p.close()
     p.join()
     return objects
 
+# def parallel_readLHE(args):
+#     return [readLHE(args[0]),readLHE(args[1])]
+
 def parallel_readLHE(args):
     """parallelizes reading of .root and storage of observables dataframe"""
+    sys.stdout = Logger("./cutNplot/LHE/RUN_INFO.log")
     p = multiprocessing.Pool()
     objects = p.map(readLHE, args)
     p.close()
     p.join()
     return objects
-
 
 
 def ApplyCuts(objects, observable, limits):

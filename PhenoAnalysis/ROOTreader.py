@@ -87,8 +87,6 @@ def readROOT(args):
             # Load selected branches with data from specified event
             treeReader.ReadEntry(entry)
             MissingET=branchMissingET.At(0)
-         #dijet+muon
-
             if branchJet.GetEntries() >= process["Njets"] and branchMuon.GetEntries() == process["Nmuons"]:
                 # JET1=branchJet.At(0), JET2=branchJet.At(1), MUON=branchMuon.At(0)
                 branches=[branchJet.At(0),branchJet.At(1),branchMuon.At(0)]

@@ -42,7 +42,7 @@ def quickPlot(objects, cutlabel):
             plt.hist(obj.obs[x], nbins, range=getRange(x),weights=obj.obs['EventWeight'], label=obj.label, histtype = 'step', linestyle=obj.plotStyle['linestyle'],color=obj.plotStyle['color'])
         #axes[1].scatter(df[x],df[y], c=df['OMEGA'],cmap='jet',s=0.1,rasterized=True,norm=norm)
         plt.legend()
-        plt.savefig('./cutNplot/'+str(objects[0].filetype)+'/plot_'+x+'_'+cutlabel+'.pdf')
+        plt.savefig('./cutNplot/'+str(objects[0].filetype)+'/'+str(objects[0].filetype)+'_plot_'+x+'_'+cutlabel+'.pdf')
         plt.close()
 
 def Dalitz(objects, cutlabel):
@@ -74,5 +74,5 @@ def Dalitz(objects, cutlabel):
         cb_ticks=[10**(j) for j in range(0,5)]
         cb=fig.colorbar(img, cax=cbar_ax)#,ticks=cb_ticks)
         cb.set_label('N entries / bin', fontsize=18)
-        fig.savefig('./cutNplot/'+str(objects[0].filetype)+'/Dalitz/ROOT_Dalitz_'+x+'_'+y+'_'+cutlabel+'.pdf')
+        fig.savefig('./cutNplot/'+str(objects[0].filetype)+'/Dalitz/'+str(objects[0].filetype)+'_Dalitz_'+x+'_'+y+'_'+cutlabel+'.pdf')
         plt.close(fig)
