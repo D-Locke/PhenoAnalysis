@@ -1,0 +1,7 @@
+mkdir $1
+mkdir $1/cutNplot
+mkdir $1/cutNplot/LHE
+mkdir $1/cutNplot/LHE/Dalitz
+mkdir $1/cutNplot/ROOT
+mkdir $1/cutNplot/ROOT/Dalitz
+cp .run_template.py $1/$1.py
