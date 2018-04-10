@@ -7,7 +7,7 @@ from PhenoAnalysis import *
 
 if __name__ == '__main__':
 	luminosity=500
-	LoadEvents=1000 													# how many events to load?
+	LoadEvents=100000 													# how many events to load?
 	observables=["Mmiss","Ejj","PTmu","PTmiss","CosThetajj"]			# which observables to compute, store and plot - check they are defined in ROOTreader.py!
 	process={"Njets" : 2, "Nmuons" : 1} 								#labels the required final state, here >=2 jets and ==1 muons
 

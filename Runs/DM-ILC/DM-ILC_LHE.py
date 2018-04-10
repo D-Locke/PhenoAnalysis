@@ -7,14 +7,14 @@ from PhenoAnalysis import *
 
 if __name__ == '__main__':
 	luminosity=500
-	LoadEvents=100000 													# how many events to load?
+	LoadEvents=100000													# how many events to load?
 	observables=["Mmiss","Ejj","PTmu","PTmiss","CosThetajj"]			# which observables to compute, store and plot - check they are defined in ROOTreader.py!
 	process={"Njets" : 2, "Nmuons" : 1} 								# labels the required final state, here ==2 jets and ==1 muons
 
 	rootDir='/home/dan/Dropbox/Projects/DM-ILC/Analysis/events'
 	args=[]				# [ name, LoadEvents, luminosity, label, type, model, process, observables, plotStyle ]
 
-	# signals
+	#signals
 	args.append([rootDir+'/SDM_ONSHELL.lhe', LoadEvents, luminosity, "SDM-signal","signal","I2HDM",process,observables,{'linestyle': 'dashed','color':'green'}])
 	args.append([rootDir+'/FDM_ONSHELL.lhe', LoadEvents, luminosity, "FDM-signal","signal","MFDM",process,observables,{'linestyle': 'solid','color':'green'}])
 

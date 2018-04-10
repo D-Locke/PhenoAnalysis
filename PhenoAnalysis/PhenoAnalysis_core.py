@@ -12,6 +12,7 @@ class Logger:
     """ For logging console output to text file"""
     def __init__(self,filename):
         self.terminal = sys.stdout
+        open(filename, 'w').close() #clear previous run
         self.log = open(filename, "a")
 
     def write(self, message):
@@ -60,7 +61,8 @@ def ApplyCuts(objects, observable, limits):
         print "\n\n-----------------------"
         print obj.label
         after=obj.Nevents
-        print "Events: "+str(after)+'/'+str(before)
+        print "Events   : "+str(after)+'/'+str(before)
+        print "Xsec [fb]: "+str(after/obj.luminosity)+'/'+str(before/obj.luminosity)
         if before!=0:
             Efficiency=after/before
         else:
