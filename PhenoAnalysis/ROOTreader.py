@@ -4,6 +4,7 @@ import pandas as pd
 import numpy as np
 from math import sqrt
 from observables import calc_obs
+pd.set_option('display.expand_frame_repr', False)
 
 class ROOTData:
     """Object containing metadata of root file, and observables dataframe"""
@@ -39,13 +40,14 @@ class ROOTData:
         return Xsec
 
     def __str__(self):
-        return ("\n{label} \n===========\nTotal Number of events: {events}"
+        return ("\n{label} \n===========\nTotal Number of MC events: {events}"
             "\nTotal CrossSection [fb]: {totXsec}\nProcess CrossSection[fb]: {Xsec}\n"
-            "Observables:\n {obs}".format(label=self.label,
+            "Observables:\n {obs}\nLuminosity: {lum}fb^-1".format(label=self.label,
                                                        events=self.LoadEvents,
                                                        totXsec=self.totXsec,
                                                        Xsec=self.Xsec,
-                                                       obs=self.obs.head()))
+                                                       obs=self.obs.head(),
+                                                       lum=self.luminosity))
     def saveObs(self):
         self.obs.to_csv('./data/'+self.label+'_'+str(self.LoadEvents)+'_obs_root.dat', sep='\t',index=False)
 
@@ -54,7 +56,8 @@ def readROOT(args):
     """Will parse root file into ROOTData object"""
     name,LoadEvents,luminosity,label,type,model,process,observables,plotStyle = args
 
-    print "\n\nReading ROOT file...\n"
+    print "Reading ROOT file: "+str(name)
+    
     ROOT.gSystem.Load("libDelphes")
     chain = ROOT.TChain("Delphes")
     chain.Add(name)    
@@ -101,5 +104,5 @@ def readROOT(args):
     del treeReader
     # total cross section assumes equal weights i.e calchep
     obj.totXsec=obj.obs["EventWeight"][0]*obj.LoadEvents/(obj.luminosity)
-    print obj
+
     return obj

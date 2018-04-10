@@ -5,6 +5,7 @@ import numpy as np
 from math import sqrt
 from observables import calc_obs
 import xml.etree.ElementTree as ET
+pd.set_option('display.expand_frame_repr', False)
 
 
 class Particle:
@@ -109,13 +110,14 @@ class LHEData:
         return Xsec
 
     def __str__(self):
-        return ("\n{label} \n===========\nTotal Number of events: {events}"
+        return ("\n{label} \n===========\nTotal Number of MC events: {events}"
             "\nTotal CrossSection [fb]: {totXsec}\nProcess CrossSection[fb]: {Xsec}\n"
-            "Observables:\n {obs}".format(label=self.label,
+            "Observables:\n {obs}\nLuminosity: {lum}fb^-1".format(label=self.label,
                                                        events=self.LoadEvents,
                                                        totXsec=self.totXsec,
                                                        Xsec=self.Xsec,
-                                                       obs=self.obs.head()))
+                                                       obs=self.obs.head(),
+                                                       lum=self.luminosity))
     def saveObs(self):
         self.obs.to_csv('./data/'+self.label+'_'+str(self.LoadEvents)+'_obs_lhe.dat', sep='\t',index=False)
 
@@ -137,12 +139,14 @@ def readLHE(args):
     """Will parse root file into ROOTData object"""
     name,LoadEvents,luminosity,label,type,model,process,observables,plotStyle = args
 
+    print "Reading LHE file: "+str(name)
+
     tree = ET.parse(name)
     root = tree.getroot()
     
     numberOfEntries = len(root)
     obj = LHEData(numberOfEntries,LoadEvents,luminosity,label,type,model,process,plotStyle)
-    print "\n\nReading LHE file...\n"
+
 
     eventCounter=0
     for eventCounter,child in enumerate(root):
@@ -170,7 +174,7 @@ def readLHE(args):
     else:
         for event in obj.events:
             jets = event.getParticlesByIDs([1,2,3,4,5,6,-1,-2,-3,-4,-5,-6])
-            muons=event.getParticlesByIDs([13])
+            muons=event.getParticlesByIDs([13,-13])
             if len(jets) == process["Njets"] and len(muons) == process["Nmuons"]:
                 observ = { 'EventWeight' : EventWeight*luminosity*1000/LoadEvents }
                 for obs in observables:
@@ -182,5 +186,5 @@ def readLHE(args):
 
     del obj.events[:]
     obj.totXsec=obj.obs["EventWeight"][0]*obj.LoadEvents/(obj.luminosity)
-    print obj
+
     return obj

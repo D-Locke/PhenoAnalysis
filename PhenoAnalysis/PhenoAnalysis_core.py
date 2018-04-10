@@ -32,6 +32,8 @@ def parallel_readROOT(args):
     objects = p.map(readROOT, args)
     p.close()
     p.join()
+    for obj in objects:
+        print obj
     return objects
 
 # def parallel_readLHE(args):
@@ -44,6 +46,8 @@ def parallel_readLHE(args):
     objects = p.map(readLHE, args)
     p.close()
     p.join()
+    for obj in objects:
+        print obj
     return objects
 
 

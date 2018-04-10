@@ -8,7 +8,7 @@ from PhenoAnalysis import *
 if __name__ == '__main__':
 	luminosity=500
 	LoadEvents=100000													# how many events to load?
-	observables=["Mmiss","PTmiss","Ejj","PTjj","Emu","PTmu","CosThetajj"]			# which observables to compute, store and plot - check they are defined in ROOTreader.py!
+	observables=["Mmiss","PTmiss","Ejj","PTjj","CosThetajj","Emu","PTmu","CosThetamu"]			# which observables to compute, store and plot - check they are defined in ROOTreader.py!
 	process={"Njets" : 2, "Nmuons" : 1} 								# labels the required final state, here ==2 jets and ==1 muons
 
 	rootDir='/home/dan/Dropbox/Projects/DM-ILC/Analysis/events'
@@ -25,6 +25,6 @@ if __name__ == '__main__':
 	args.append([rootDir+'/SM_BW4.lhe', LoadEvents, luminosity, "BW4","background","SM",process,observables,{'linestyle': 'solid','color':'yellow'}])
 
 	objects = parallel_readLHE(args)		# parse root files in parallel
-	cuts={ 	'Mmiss': [170,500],	'Ejj' : [0,200]}
+	cuts={ 	'Mmiss': [170,500],	'Ejj' : [0,200], 'CosThetajj': [-0.5,0.5]}
 
 	cutNplot(objects,cuts)

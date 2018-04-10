@@ -7,12 +7,10 @@ def getLabel(observable):
     plotLabel={}
     plotLabel['Mmiss']="$M_{miss} [GeV]$"
     plotLabel['PTmiss']="$p_T^{miss} [GeV]$"
-
     plotLabel['Ejj']="$E_{jj}$ [GeV]"
     plotLabel['PTjj']="$p^T_{jj}$ [GeV]"
     plotLabel['Etajj']="$\\eta_{jj}$"
     plotLabel['CosThetajj']="$\\cos{\\theta_{jj}}$"
-
     plotLabel['Ew']="$E_{w}$ [GeV]"
     plotLabel['Emu']="$E_{\\mu}$ [GeV]"
     plotLabel['PTmu']="$p_T^{\\mu}$ [GeV]"
@@ -26,13 +24,13 @@ def getRange(observable):
     plotRange['PTmiss']=(0,500)
     plotRange['Ejj']=(0,500)
     plotRange['PTjj']=(0,500)
-    plotRange['Etajj']=(-5,5)
-    plotRange['CosThetajj']=(-1,1)
+    plotRange['Etajj']=(-50.0,50.0)
+    plotRange['CosThetajj']=(-1.0,1.0)
     plotRange['Ew']=(0,500)
     plotRange['Emu']=(0,500)
     plotRange['PTmu']=(0,500)
-    plotRange['Etamu']=(-5,5)
-    plotRange['CosThetamu']=(-1,1)
+    plotRange['Etamu']=(-50.0,50.0)
+    plotRange['CosThetamu']=(-1.0,1.0)
     return plotRange[observable]
 
 def quickPlot(objects, cutlabel):
@@ -55,10 +53,11 @@ def Dalitz(objects, cutlabel):
     observables=[key for key in objects[0].obs.keys()]
     observables.remove("EventWeight")
     for x,y in itertools.combinations(observables,2):
-        fig, axes = plt.subplots(1, len(objects), sharey=True,figsize=(15,4))
-        fig.subplots_adjust(wspace=0,top=0.8,bottom=0.2)
-        axes[0].set_ylabel(getLabel(y),fontsize=16)
+        fig, axes = plt.subplots(1, len(objects), sharey=True,figsize=(16,4))
+        fig.subplots_adjust(wspace=0.2,top=0.8,bottom=0.2)
         cbar_ax = fig.add_axes([0.84, 0.1, 0.015, 0.8])
+        
+        axes[0].set_ylabel(getLabel(y),fontsize=16)
         for ax in axes:       
           ax.set_xlabel(getLabel(x),fontsize=16)
           ax.set_xlim(getRange(x))
@@ -66,15 +65,16 @@ def Dalitz(objects, cutlabel):
 
         #cmaps=['Reds','Greens','Blues']
         NORM=cols.LogNorm(vmin=0.1,vmax=100000)
-        nbins=30
+        nbins=20
         xedges = np.linspace(getRange(x)[0],getRange(x)[1],nbins)
         yedges = np.linspace(getRange(y)[0],getRange(y)[1],nbins)
+
 
         hists2d={}
         for i,obj in enumerate(objects):
             axes[i].set_title(obj.label)
             hists2d[obj.label]=np.histogram2d(obj.obs[x],obj.obs[y],bins=(xedges, yedges),weights=obj.obs['EventWeight'])
-            img = axes[i].imshow(hists2d[obj.label][0].T, interpolation='nearest', origin='low', extent=[xedges[0], xedges[-1], yedges[0], yedges[-1]],norm=NORM)
+            img = axes[i].imshow(hists2d[obj.label][0].T, interpolation='nearest', origin='low', extent=[xedges[0], xedges[-1], yedges[0], yedges[-1]],aspect='auto',norm=NORM)
 
         fig.subplots_adjust(right=0.8)
         cb_ticks=[10**(j) for j in range(0,5)]

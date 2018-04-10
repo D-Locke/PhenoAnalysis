@@ -21,7 +21,4 @@ Future:
 * add errors - statistical and from cuts (binomial)
 * Improve storage of dataframes alongside metadata (in hdf5)
 * add support for hdf5 and compressing files, which stores ROOTdata metadata along with dataframe
-...http://docs.h5py.org/en/latest/quick.html#quick
-...https://stackoverflow.com/questions/29129095/save-additional-attributes-in-pandas-dataframe
 * Add decision trees, neural networks with scikit-learn?
-... http://benalexkeen.com/decision-tree-classifier-in-python-using-scikit-learn/
