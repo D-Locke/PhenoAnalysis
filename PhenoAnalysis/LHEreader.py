@@ -111,13 +111,14 @@ class LHEData:
 
     def __str__(self):
         return ("\n{label} \n===========\nTotal Number of MC events: {events}"
+            "\nLuminosity: {lum}fb^-1"
             "\nTotal CrossSection [fb]: {totXsec}\nProcess CrossSection[fb]: {Xsec}\n"
-            "Observables:\n {obs}\nLuminosity: {lum}fb^-1".format(label=self.label,
+            "Observables:\n {obs}".format(label=self.label,
                                                        events=self.LoadEvents,
+                                                       lum=self.luminosity,
                                                        totXsec=self.totXsec,
                                                        Xsec=self.Xsec,
-                                                       obs=self.obs.head(),
-                                                       lum=self.luminosity))
+                                                       obs=self.obs.head()))
     def saveObs(self):
         self.obs.to_csv('./data/'+self.label+'_'+str(self.LoadEvents)+'_obs_lhe.dat', sep='\t',index=False)
 

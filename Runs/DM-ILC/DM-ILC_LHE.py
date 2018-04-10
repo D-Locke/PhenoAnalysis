@@ -4,6 +4,7 @@ import sys
 import os.path
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), os.path.pardir,os.path.pardir)))
 from PhenoAnalysis import *
+import collections
 
 if __name__ == '__main__':
 	luminosity=500
@@ -25,6 +26,9 @@ if __name__ == '__main__':
 	args.append([rootDir+'/SM_BW4.lhe', LoadEvents, luminosity, "BW4","background","SM",process,observables,{'linestyle': 'solid','color':'yellow'}])
 
 	objects = parallel_readLHE(args)		# parse root files in parallel
-	cuts={ 	'Mmiss': [170,500],	'Ejj' : [0,200], 'CosThetajj': [-0.5,0.5]}
+	cuts=collections.OrderedDict()
+	cuts['Mmiss']=[170,500]
+	cuts['Ejj']=[0,200]
+	cuts['CosThetajj']=[-0.5,0.5]
 
 	cutNplot(objects,cuts)

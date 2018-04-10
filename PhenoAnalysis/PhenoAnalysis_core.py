@@ -101,7 +101,7 @@ def cutNplot(objects, cuts):
         print obj.label+': '
         totalEff=float(len(obj.obs))/decEvents[obj.label]
         print "\tEvents: "+str(obj.Nevents)+'/'+str(decEvents[obj.label])
-        print "\tEfficiency: "+str(float(obj.Nevents)/decEvents[obj.label])
+        print "\tEfficiency:"+str(float(obj.Nevents)/decEvents[obj.label])
         print ""
     print "~~~~~~~~~~~~~~~~~~~~~~~~~~\n\n"
 
