@@ -2,6 +2,8 @@
 This is a python HEP data analysis framework, with minimalist LHE & ROOT file readers that will iterate over file and store requested observables
 in dataframe. Uses DELPHES output tree descriptions. Currently will streamline cut and count analysis, and eventially have some automatic analysis prototyping features.
 
+Reading of files is done in parallel, using multiprocessing module.
+
 ## Requirements:
 ROOT, pyROOT, libDelphes, pandas, numpy, matplotlib
 
