@@ -5,28 +5,34 @@ import numpy as np
 
 def getLabel(observable):
     plotLabel={}
-    plotLabel['PTmiss']="$p_T^{miss} [GeV]$"
     plotLabel['Mmiss']="$M_{miss} [GeV]$"
+    plotLabel['PTmiss']="$p_T^{miss} [GeV]$"
+
     plotLabel['Ejj']="$E_{jj}$ [GeV]"
-    plotLabel['PTjj']="$p^T_{jj}$ [GeV]"   
+    plotLabel['PTjj']="$p^T_{jj}$ [GeV]"
+    plotLabel['Etajj']="$\\eta_{jj}$"
+    plotLabel['CosThetajj']="$\\cos{\\theta_{jj}}$"
+
     plotLabel['Ew']="$E_{w}$ [GeV]"
     plotLabel['Emu']="$E_{\\mu}$ [GeV]"
     plotLabel['PTmu']="$p_T^{\\mu}$ [GeV]"
     plotLabel['Etamu']="$\\eta_{\\mu}$"
-    plotLabel['CosThetajj']="$\\cos{\\theta_{jj}}$"
+    plotLabel['CosThetamu']="$\\cos{\\theta_{\\mu}}$"
     return plotLabel[observable]
 
 def getRange(observable):
     plotRange={}
-    plotRange['PTmiss']=(0,500)
     plotRange['Mmiss']=(0,500)
+    plotRange['PTmiss']=(0,500)
     plotRange['Ejj']=(0,500)
     plotRange['PTjj']=(0,500)
+    plotRange['Etajj']=(-5,5)
+    plotRange['CosThetajj']=(-1,1)
     plotRange['Ew']=(0,500)
     plotRange['Emu']=(0,500)
     plotRange['PTmu']=(0,500)
     plotRange['Etamu']=(-5,5)
-    plotRange['CosThetajj']=(-1,1)
+    plotRange['CosThetamu']=(-1,1)
     return plotRange[observable]
 
 def quickPlot(objects, cutlabel):

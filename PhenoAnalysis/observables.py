@@ -43,19 +43,22 @@ def CosTheta(parts):
 
 # SHOULD EXTEND OBSERVABLES LIST AND MAKE COMMON TO LHEANALYSIS
 def calc_obs(obsName,partList):
-    JET1,JET2,MUON = partList
-    beamP4=TLorentzVector(0,0,0,500) # test without ISR+BS
-    visibleP4=JET1.P4()+JET2.P4()+MUON.P4()
-    obs={}
+	""" remember to define ranges and labels in plotting.py! """
+	JET1,JET2,MUON = partList
 
-    # observable definitions go here
-    obs["Mmiss"] = (beamP4-visibleP4).M()
-    obs["Ejj"] = (JET1.P4()+JET2.P4()).E()
-    obs["PTjj"] = (JET1.P4()+JET2.P4()).Pt()
-    obs["PTmu"] = MUON.P4().Pt()
-    obs["PTmiss"] = visibleP4.Pt()
-    obs["CosThetajj"] = (JET1.P4()+JET2.P4()).CosTheta()
+	obs={}
 
-    #print (JET1.P4()+JET2.P4()).E()
+	obs["Mmiss"] = M_miss(partList)
+	obs["PTmiss"] = PT_miss(partList)
 
-    return obs[obsName]
+	obs["Ejj"] = E([JET1,JET2])
+	obs["PTjj"] = PT([JET1,JET2])
+	obs["Etajj"] = Eta([JET1,JET2])
+	obs["CosThetajj"] = CosTheta([JET1,JET2])
+
+	obs["Emu"]= E([MUON])
+	obs["PTmu"] = PT([MUON])
+	obs["Etamu"] = Eta([MUON])
+	obs["CosThetamu"] = CosTheta([MUON])
+
+	return obs[obsName]

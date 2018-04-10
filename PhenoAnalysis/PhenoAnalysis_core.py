@@ -58,16 +58,17 @@ def ApplyCuts(objects, observable, limits):
         obj.obs = obj.obs[obj.obs[observable]>low]
         obj.obs = obj.obs[obj.obs[observable]<high]
         # print cutObs.head()
-        print "\n\n-----------------------"
-        print obj.label
+        print "\n\n"
+        print "\t"+str(obj.label)
+        print "\t-----------------------"
         after=obj.Nevents
-        print "Events   : "+str(after)+'/'+str(before)
-        print "Xsec [fb]: "+str(after/obj.luminosity)+'/'+str(before/obj.luminosity)
+        print "\tEvents    : "+str(after)+'/'+str(before)
+        print "\tXsec [fb] : "+str(after/obj.luminosity)+'/'+str(before/obj.luminosity)
         if before!=0:
             Efficiency=after/before
         else:
             Efficiency=-1
-        print "Efficiency: ",str(Efficiency)
+        print "\tEfficiency: ",str(Efficiency)
         efficiencies[obj.label]=Efficiency
     return efficiencies
 
@@ -79,7 +80,7 @@ def cutNplot(objects, cuts):
     #events of this decay chain:
     decEvents={}
     for obj in objects:
-        decEvents[obj]=obj.Nevents
+        decEvents[obj.label]=obj.Nevents
 
     AllEff={}
     quickPlot(objects ,"NoCuts")
@@ -91,12 +92,12 @@ def cutNplot(objects, cuts):
         Dalitz(objects , cut+"Cut")
 
     print "\n\n\n~~~~~~~~~~~~~~~~~~~~~~~~~~"
-    print "TOTAL: \n"
+    print "TOTALS: \n"
     for obj in objects:
         print obj.label+': '
-        totalEff=float(len(obj.obs))/decEvents[obj]
-        print "\tEvents: "+str(obj.Nevents)+'/'+str(decEvents[obj])
-        print "\tEfficiency: "+str(float(obj.Nevents)/decEvents[obj])
+        totalEff=float(len(obj.obs))/decEvents[obj.label]
+        print "\tEvents: "+str(obj.Nevents)+'/'+str(decEvents[obj.label])
+        print "\tEfficiency: "+str(float(obj.Nevents)/decEvents[obj.label])
         print ""
     print "~~~~~~~~~~~~~~~~~~~~~~~~~~\n\n"
 
@@ -104,18 +105,24 @@ def cutNplot(objects, cuts):
     for obj in objects:
         cutEvents[obj.label]=obj.Nevents
 
+    print "\n############################################################"
     print "\nSIGNIFICANCES: "
     for obj in objects:
         if obj.type=="signal":
             BGevents=0
+            decBGevents=sum(decEvents[bg.label] for bg in objects if (bg.type=="background" and (bg.model=="SM" or bg.model==obj.model)))
             BGevents=sum(bg.Nevents for bg in objects if (bg.type=="background" and (bg.model=="SM" or bg.model==obj.model)))
             if BGevents!=0:
                 print obj.label+': '
-                totalEff=float(obj.Nevents)/decEvents[obj]
+                sigEff=float(obj.Nevents)/decEvents[obj.label]
+                bgEff=float(BGevents)/decBGevents
+                print "\t\tSignal efficiency: "+str(totalEff)
+                print "\t\tBackground efficiency: "+str(totalEff)
                 signif = significance(obj.Nevents,BGevents)
                 print "\t\ts/sqrt(s+b): "+str(signif)
             else:
                 print "No backgrounds supplied"
+    print "\n############################################################\n"
 
 
 
