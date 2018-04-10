@@ -29,6 +29,7 @@ if __name__ == '__main__':
 	cuts=collections.OrderedDict()
 	cuts['Mmiss']=[170,500]
 	cuts['Ejj']=[0,200]
-	cuts['CosThetajj']=[-0.5,0.5]
+	cuts['CosThetajj']=[-0.8,0.8]
+	cuts['CosThetamu']=[-0.8,0.8]
 
 	cutNplot(objects,cuts)

@@ -120,8 +120,8 @@ def cutNplot(objects, cuts):
                 print obj.label+': '
                 sigEff=float(obj.Nevents)/decEvents[obj.label]
                 bgEff=float(BGevents)/decBGevents
-                print "\t\tSignal efficiency: "+str(totalEff)
-                print "\t\tBackground efficiency: "+str(totalEff)
+                print "\t\tSignal efficiency: "+str(sigEff)
+                print "\t\tBackground efficiency: "+str(bgEff)
                 signif = significance(obj.Nevents,BGevents)
                 print "\t\ts/sqrt(s+b): "+str(signif)
             else:
