@@ -7,6 +7,68 @@ from ROOTreader import *
 from observables import *
 from plotting import *
 
+class PAData:
+    """Object containing metadata of root file, and observables dataframe"""
+    def __init__(self,filetype,Nentries,LoadEvents,luminosity,label,type,model,process,plotStyle):
+        self.filetype=filetype
+        self.Nentries=Nentries      # this is how many events stored in full .ROOT file
+        self.LoadEvents=LoadEvents # this is how many to load
+        self.luminosity=luminosity
+        self.obs=pd.DataFrame()  # for shoving in dataframe containing observables - SHOULD INSTEAD CREATE METHODS TO HAVE OBSERVABLES IN EACH EVENT CLASS!
+        self.events=[]
+        self.label=label
+        self.type=type # e.g "signal" or "background"
+        self.process=process
+        self.model=model
+        self.plotStyle=plotStyle
+        self.ObsFilename=self.ObsFilename()
+
+
+    @property
+    def Nevents(self):
+        """ for number of detector level events remaining after cuts """
+        if len(self.obs) < 1:
+            Nevents=0
+        else:
+            Nevents=sum(self.obs["EventWeight"])
+        return Nevents
+
+    @property
+    def totXsec(self):
+        if len(self.obs) < 1:
+            totXsec=0
+        else:
+            totXsec=self.obs["EventWeight"][0]*self.LoadEvents/(self.luminosity)
+        return totXsec
+
+    @property
+    def Xsec(self):
+        if len(self.obs) < 1:
+            Xsec=0
+        else:
+            Xsec=sum(self.obs["EventWeight"])/(self.luminosity)
+        return Xsec
+
+    def __str__(self):
+        return ("\n{label} \n===========\nTotal Number of MC events: {events}"
+            "\nLuminosity: {lum}fb^-1"
+            "\nTotal CrossSection [fb]: {totXsec}\nProcess CrossSection[fb]: {Xsec}\n"
+            "Observables:\n {obs}".format(label=self.label,
+                                                       events=self.LoadEvents,
+                                                       lum=self.luminosity,
+                                                       totXsec=self.totXsec,
+                                                       Xsec=self.Xsec,
+                                                       obs=self.obs.head()))
+    def ObsFilename(self):
+        return './data/'+self.label+'_'+str(self.LoadEvents)+'_obs_'+str(self.filetype)+'.dat.gz'
+
+    def saveObs(self):
+        self.obs.to_csv(self.ObsFilename, sep='\t',index=False)
+
+    def readObs(self):
+        print "\nDataframe already stored, loading {file} ...\n".format(file=self.ObsFilename)
+        self.obs=pd.read_csv(self.ObsFilename, compression='gzip',sep='\t')
+
 
 class Logger:
     """ For logging console output to text file"""
@@ -80,8 +142,9 @@ def ApplyCuts(objects, observable, limits):
 def significance(s,b):
     return s/sqrt(s+b)
 
-def cutNplot(objects, cuts):
+def cutNplot(objects, cuts,**kwargs):
     #events of this decay chain:
+    PlotCuts=kwargs.get('PlotCuts',False)
     decEvents={}
     for obj in objects:
         decEvents[obj.label]=obj.Nevents
@@ -92,8 +155,9 @@ def cutNplot(objects, cuts):
     for i,cut in enumerate(cuts):
         print "\nAPPLYING CUT "+str(i+1)+": \n**************************"
         AllEff[cut]=ApplyCuts(objects, cut, cuts[cut])
-        quickPlot(objects , cut+"Cut")
-        Dalitz(objects , cut+"Cut")
+        if PlotCuts==True:
+            quickPlot(objects , cut+"Cut")
+            Dalitz(objects , cut+"Cut")
 
     print "\n\n\n~~~~~~~~~~~~~~~~~~~~~~~~~~"
     print "TOTALS: \n"

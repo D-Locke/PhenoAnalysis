@@ -29,6 +29,7 @@ Build Delphes 3.x and take libDelphes.so and place in e.g ~Packages/root/build/l
 * parallelize object initialization
 
 ### Future:
+* add pdf report generation, with cut-flow tables
 * improve speed by using iterators
 * instead use upROOT for parsing? Avoids requirement of ROOT install, libDelphes...
 * cProfile code to find slow parts of ROOT code

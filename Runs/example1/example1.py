@@ -26,6 +26,6 @@ if __name__ == '__main__':
 	cuts['Mmiss']=[170,500]
 	cuts['Ejj']=[0,200]
 
-	cutNplot(objects,cuts)
+	cutNplot(objects,cuts,PlotCuts=False)
 
 	print "Finished analysis, please see cutNplot for plots and results. Dataframe of observables is stored in /data"

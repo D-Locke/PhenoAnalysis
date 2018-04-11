@@ -7,6 +7,7 @@ from observables import calc_obs
 import xml.etree.ElementTree as ET
 pd.set_option('display.expand_frame_repr', False)
 from itertools import islice
+import PhenoAnalysis_core as PA
 
 class Particle:
     def __init__(self,pdgid,spin,px=0,py=0,pz=0,energy=0,mass=0):
@@ -75,61 +76,6 @@ class Event:
                     partlist.append(p)
         return partlist
 
-
-class LHEData:
-    """Object containing metadata of root file, and observables dataframe"""
-    def __init__(self,Nentries,LoadEvents,luminosity,label,type,model,process,plotStyle):
-        self.filetype='LHE'
-        self.Nentries=Nentries      # this is how many events stored in full .ROOT file
-        self.LoadEvents=LoadEvents # this is how many to load
-        self.luminosity=luminosity
-        self.obs=pd.DataFrame()  # for shoving in dataframe containing observables - SHOULD INSTEAD CREATE METHODS TO HAVE OBSERVABLES IN EACH EVENT CLASS!
-        self.events=[]
-        self.label=label
-        self.type=type # e.g "signal" or "background"
-        self.process=process
-        self.model=model
-        self.plotStyle=plotStyle
-
-
-    @property
-    def Nevents(self):
-        """ for number of detector level events remaining after cuts """
-        if len(self.obs) < 1:
-            Nevents=0
-        else:
-            Nevents=sum(self.obs["EventWeight"])
-        return Nevents
-
-    @property
-    def totXsec(self):
-        if len(self.obs) < 1:
-            totXsec=0
-        else:
-            totXsec=self.obs["EventWeight"][0]*self.LoadEvents/(self.luminosity)
-        return totXsec
-    
-    @property
-    def Xsec(self):
-        if len(self.obs) < 1:
-            Xsec=0
-        else:
-            Xsec=sum(self.obs["EventWeight"])/(self.luminosity)
-        return Xsec
-
-    def __str__(self):
-        return ("\n{label} \n===========\nTotal Number of MC events: {events}"
-            "\nLuminosity: {lum}fb^-1"
-            "\nTotal CrossSection [fb]: {totXsec}\nProcess CrossSection[fb]: {Xsec}\n"
-            "Observables:\n {obs}".format(label=self.label,
-                                                       events=self.LoadEvents,
-                                                       lum=self.luminosity,
-                                                       totXsec=self.totXsec,
-                                                       Xsec=self.Xsec,
-                                                       obs=self.obs.head()))
-    def saveObs(self):
-        self.obs.to_csv('./data/'+self.label+'_'+str(self.LoadEvents)+'_obs_lhe.dat', sep='\t',index=False)
-
     
 def readLHE(args):
     """Will parse root file into ROOTData object"""
@@ -138,14 +84,13 @@ def readLHE(args):
     print "Reading LHE file: "+str(name)
 
     tree = ET.parse(name)
-    root = tree.getroot()
-    
+    root = tree.getroot()    
     numberOfEntries = len(root)
-    obj = LHEData(numberOfEntries,LoadEvents,luminosity,label,type,model,process,plotStyle)
+    
+    obj = PA.PAData('LHE',numberOfEntries,LoadEvents,luminosity,label,type,model,process,plotStyle)
 
-    if os.path.isfile('./data/'+obj.label+'_'+str(obj.LoadEvents)+'_obs_lhe.dat'):
-        print "\nDataframe already stored, loading {file} ...\n".format(file='./data/'+obj.label+'_'+str(obj.LoadEvents)+'_obs_lhe.dat')
-        obj.obs=pd.read_csv('./data/'+obj.label+'_'+str(obj.LoadEvents)+'_obs_lhe.dat', sep='\t')
+    if os.path.isfile(obj.ObsFilename):
+        obj.readObs()
     else:
         for child in islice(root,LoadEvents):
             if LoadEvents > numberOfEntries:
