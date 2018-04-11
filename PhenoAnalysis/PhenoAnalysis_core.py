@@ -60,10 +60,10 @@ class PAData:
                                                        Xsec=self.Xsec,
                                                        obs=self.obs.head()))
     def ObsFilename(self):
-        return './data/'+self.label+'_'+str(self.LoadEvents)+'_obs_'+str(self.filetype)+'.dat.gz'
+        return './data/'+self.label.replace(' ', '_')+'_'+str(self.LoadEvents)+'_obs_'+str(self.filetype)+'.dat.gz'
 
     def saveObs(self):
-        self.obs.to_csv(self.ObsFilename, sep='\t',index=False)
+        self.obs.to_csv(self.ObsFilename, compression='gzip', sep='\t',index=False)
 
     def readObs(self):
         print "\nDataframe already stored, loading {file} ...\n".format(file=self.ObsFilename)
