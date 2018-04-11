@@ -79,7 +79,7 @@ def readROOT(args):
         obj.obs=pd.read_csv('./data/'+obj.label+'_'+str(obj.LoadEvents)+'_obs.dat', sep='\t')
     else:
         for event in islice(mytree,LoadEvents):
-            if event.Jet.GetEntries() == process["Njets"] and event.Muon.GetEntries() == process["Nmuons"]:
+            if event.Jet.GetEntries() >= process["Njets"] and event.Muon.GetEntries() == process["Nmuons"]:
                 branches=[event.Jet.At(0),event.Jet.At(1),event.Muon.At(0)] # this should be changed depending on process
                 observ = { 'EventWeight' : event.Event.At(0).Weight*luminosity*1000/LoadEvents }
                 for obs in observables:

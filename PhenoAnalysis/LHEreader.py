@@ -6,7 +6,7 @@ from math import sqrt
 from observables import calc_obs
 import xml.etree.ElementTree as ET
 pd.set_option('display.expand_frame_repr', False)
-
+from itertools import islice
 
 class Particle:
     def __init__(self,pdgid,spin,px=0,py=0,pz=0,energy=0,mass=0):
@@ -102,6 +102,14 @@ class LHEData:
         return Nevents
 
     @property
+    def totXsec(self):
+        if len(self.obs) < 1:
+            totXsec=0
+        else:
+            totXsec=self.obs["EventWeight"][0]*self.LoadEvents/(self.luminosity)
+        return totXsec
+    
+    @property
     def Xsec(self):
         if len(self.obs) < 1:
             Xsec=0
@@ -123,19 +131,6 @@ class LHEData:
         self.obs.to_csv('./data/'+self.label+'_'+str(self.LoadEvents)+'_obs_lhe.dat', sep='\t',index=False)
 
     
-    def __addEvent__(self,event):
-        self.events.append(event)
-     
-    def clearEvents(self):
-        del self.events
-
-    def getParticlesByIDs(self,idlist):
-        partlist=[]
-        for event in self.events:
-            partlist.extend(event.getParticlesByIDs(idlist))
-        return partlist
-
-
 def readLHE(args):
     """Will parse root file into ROOTData object"""
     name,LoadEvents,luminosity,label,type,model,process,observables,plotStyle = args
@@ -148,44 +143,40 @@ def readLHE(args):
     numberOfEntries = len(root)
     obj = LHEData(numberOfEntries,LoadEvents,luminosity,label,type,model,process,plotStyle)
 
-
-    eventCounter=0
-    for eventCounter,child in enumerate(root):
-        if LoadEvents > numberOfEntries:
-            print "Cannot load more events than contained in LHE file!"
-            print "Loading",str(numberOfEntries)
-            print ""
-            LoadEvents=numberOfEntries
-
-        if(child.tag=='event') and (eventCounter<LoadEvents):
-            lines=child.text.strip().split('\n')
-            event_header=lines[0].strip()
-            num_part=int(event_header.split()[0].strip())
-            EventWeight=float(event_header.split()[2].strip())
-            e=Event(num_part)
-            for i in range(1,num_part+1):
-                part_data=lines[i].strip().split()
-                p=Particle(int(part_data[0]), float(part_data[12]), float(part_data[6]), float(part_data[7]), float(part_data[8]), float(part_data[9]), float(part_data[10]))
-                e.__addParticle__(p)
-            obj.__addEvent__(e)
-
     if os.path.isfile('./data/'+obj.label+'_'+str(obj.LoadEvents)+'_obs_lhe.dat'):
         print "\nDataframe already stored, loading {file} ...\n".format(file='./data/'+obj.label+'_'+str(obj.LoadEvents)+'_obs_lhe.dat')
         obj.obs=pd.read_csv('./data/'+obj.label+'_'+str(obj.LoadEvents)+'_obs_lhe.dat', sep='\t')
     else:
-        for event in obj.events:
-            jets = event.getParticlesByIDs([1,2,3,4,5,6,-1,-2,-3,-4,-5,-6])
-            muons=event.getParticlesByIDs([13,-13])
-            if len(jets) == process["Njets"] and len(muons) == process["Nmuons"]:
-                observ = { 'EventWeight' : EventWeight*luminosity*1000/LoadEvents }
-                for obs in observables:
-                #JET1,JET2,MUON = partList
-                    parts = jets+muons
-                    observ[obs] = calc_obs(obs,parts)              
-                obj.obs=obj.obs.append(observ, ignore_index=True)
-        obj.saveObs()
+        for child in islice(root,LoadEvents):
+            if LoadEvents > numberOfEntries:
+                print "Cannot load more events than contained in LHE file!"
+                print "Loading",str(numberOfEntries)
+                print ""
+                LoadEvents=numberOfEntries
 
-    del obj.events[:]
-    obj.totXsec=obj.obs["EventWeight"][0]*obj.LoadEvents/(obj.luminosity)
+            if(child.tag=='event'):
+                lines=child.text.strip().split('\n')
+                event_header=lines[0].strip()
+                num_part=int(event_header.split()[0].strip())
+                EventWeight=float(event_header.split()[2].strip())
+                event=Event(num_part)
+                for i in range(1,num_part+1):
+                    part_data=lines[i].strip().split()
+                    p=Particle(int(part_data[0]), float(part_data[12]), float(part_data[6]), float(part_data[7]), float(part_data[8]), float(part_data[9]), float(part_data[10]))
+                    event.__addParticle__(p)
+
+                    jets = event.getParticlesByIDs([1,2,3,4,5,6,-1,-2,-3,-4,-5,-6])
+                    muons=event.getParticlesByIDs([13,-13])
+                    if len(jets) == process["Njets"] and len(muons) == process["Nmuons"]:
+                        observ = { 'EventWeight' : EventWeight*luminosity*1000/LoadEvents }
+                        for obs in observables:
+                        #JET1,JET2,MUON = partList
+                            parts = jets+muons
+                            observ[obs] = calc_obs(obs,parts)              
+                        obj.obs=obj.obs.append(observ, ignore_index=True)
+         
+        obj.saveObs()
+    del tree
+    del root
 
     return obj
