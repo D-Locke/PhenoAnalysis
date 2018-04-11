@@ -54,16 +54,7 @@ class ROOTData:
     def saveObs(self):
         self.obs.to_csv('./data/'+self.label+'_'+str(self.LoadEvents)+'_obs_root.dat', sep='\t',index=False)
 
-# this is a wrapper for the generator
-def stoppable_iter(iterable):
-    it = iter(iterable)
-    for v in it:
-        x = yield v
-        if x:
-            yield
-            return
-    
-
+ 
 def readROOT(args):
     """Will parse root file into ROOTData object"""
     filename,LoadEvents,luminosity,label,type,model,process,observables,plotStyle = args
@@ -74,7 +65,6 @@ def readROOT(args):
     mytree=myfile.Delphes 
 
     numberOfEntries = mytree.GetEntries()
-    print numberOfEntries
     if LoadEvents > numberOfEntries:
         print "Cannot load more events than contained in ROOT file!"
         print "Loading",str(numberOfEntries)
@@ -89,7 +79,6 @@ def readROOT(args):
         obj.obs=pd.read_csv('./data/'+obj.label+'_'+str(obj.LoadEvents)+'_obs.dat', sep='\t')
     else:
         for event in islice(mytree,LoadEvents):
-            # improve process definitions to use iterators
             if event.Jet.GetEntries() == process["Njets"] and event.Muon.GetEntries() == process["Nmuons"]:
                 branches=[event.Jet.At(0),event.Jet.At(1),event.Muon.At(0)] # this should be changed depending on process
                 observ = { 'EventWeight' : event.Event.At(0).Weight*luminosity*1000/LoadEvents }
