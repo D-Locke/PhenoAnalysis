@@ -7,9 +7,12 @@ Reading of files is done in parallel, using multiprocessing module.
 ## Requirements:
 Python2.x, ROOT5.x, pyROOT, libDelphes, pandas, numpy, matplotlib
 
+For LHE:
+Install python modules (pandas,numpy,matplotlib) using pip
+
+For ROOT:
 Install ROOT5.x with pyROOT flags, as described here: https://root.cern.ch/pyroot
 Build Delphes 3.x and take libDelphes.so and place in e.g ~Packages/root/build/lib/root/
-Install python modules (pandas,numpy,matplotlib) using pip
 
 
 ## Features:
