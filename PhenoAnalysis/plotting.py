@@ -1,3 +1,5 @@
+import matplotlib
+matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import matplotlib.colors as cols
 import itertools
@@ -37,7 +39,7 @@ def quickPlot(objects, cutlabel):
     observables=[key for key in objects[0].obs.keys()]
     observables.remove("EventWeight")
     for x in observables:
-        plt.title('$e^+e^- \\to j,j,\\mu,\\nu(+D,D)$ at '+str(objects[0].luminosity)+'$fb^{-1}$ (AFTER '+cutlabel+')')
+        #plt.title('$e^+e^- \\to j,j,\\mu,\\nu(+D,D)$ at '+str(objects[0].luminosity)+'$fb^{-1}$ (AFTER '+cutlabel+')')
         plt.yscale('log')
         plt.xlabel(getLabel(x))
         plt.ylabel('entries / bin')

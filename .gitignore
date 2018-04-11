@@ -1,4 +1,4 @@
 NOTES
-Runs/DM-ILC/data
-Runs/DM-ILC/data_bk
-Runs/DM-ILC/cutNplot
+Runs/DM-ILC
+Runs/example1/cutNplot/*
+Runs/example1/data/*

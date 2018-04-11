@@ -4,4 +4,6 @@ mkdir $1/cutNplot/LHE
 mkdir $1/cutNplot/LHE/Dalitz
 mkdir $1/cutNplot/ROOT
 mkdir $1/cutNplot/ROOT/Dalitz
+mkdir $1/data
 cp .run_template.py $1/$1.py
+

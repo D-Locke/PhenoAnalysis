@@ -4,7 +4,9 @@ import pandas as pd
 import numpy as np
 from math import sqrt
 from observables import calc_obs
+from itertools import islice
 pd.set_option('display.expand_frame_repr', False)
+ROOT.gSystem.Load('libDelphes')
 
 class ROOTData:
     """Object containing metadata of root file, and observables dataframe"""
@@ -52,57 +54,52 @@ class ROOTData:
     def saveObs(self):
         self.obs.to_csv('./data/'+self.label+'_'+str(self.LoadEvents)+'_obs_root.dat', sep='\t',index=False)
 
+# this is a wrapper for the generator
+def stoppable_iter(iterable):
+    it = iter(iterable)
+    for v in it:
+        x = yield v
+        if x:
+            yield
+            return
+    
 
 def readROOT(args):
     """Will parse root file into ROOTData object"""
-    name,LoadEvents,luminosity,label,type,model,process,observables,plotStyle = args
+    filename,LoadEvents,luminosity,label,type,model,process,observables,plotStyle = args
 
-    print "Reading ROOT file: "+str(name)
+    print "Reading ROOT file: "+str(filename)
     
-    ROOT.gSystem.Load("libDelphes")
-    chain = ROOT.TChain("Delphes")
-    chain.Add(name)    
-    # Create object of class ExRootTreeReader
-    treeReader = ROOT.ExRootTreeReader(chain)
-    numberOfEntries = treeReader.GetEntries()
+    myfile=ROOT.TFile(filename)
+    mytree=myfile.Delphes 
+
+    numberOfEntries = mytree.GetEntries()
+    print numberOfEntries
     if LoadEvents > numberOfEntries:
         print "Cannot load more events than contained in ROOT file!"
         print "Loading",str(numberOfEntries)
         print ""
         LoadEvents=numberOfEntries
 
-
     obj = ROOTData(numberOfEntries,LoadEvents,luminosity,label,type,model,process,plotStyle)
-
-    # Get pointers to branches used in this analysis
-    branchJet = treeReader.UseBranch("Jet")
-    branchMuon= treeReader.UseBranch("Muon")
-    branchMissingET=treeReader.UseBranch("MissingET")
-    branchEvent = treeReader.UseBranch("Event")
-    #EventWeight = 657.18*lumin/numberOfEntries
-
 
     # modify below to check dataframe.keys() contains all observables required, ifnot then compute just that column and append.
     if os.path.isfile('./data/'+obj.label+'_'+str(obj.LoadEvents)+'_obs.dat'):
         print "\nDataframe already stored, loading {file} ...\n".format(file='./data/'+obj.label+'_'+str(obj.LoadEvents)+'_obs_root.dat')
         obj.obs=pd.read_csv('./data/'+obj.label+'_'+str(obj.LoadEvents)+'_obs.dat', sep='\t')
     else:
-        for entry in range(0, LoadEvents):
-            # Load selected branches with data from specified event
-            treeReader.ReadEntry(entry)
-            MissingET=branchMissingET.At(0)
-            if branchJet.GetEntries() == process["Njets"] and branchMuon.GetEntries() == process["Nmuons"]:
-                # JET1=branchJet.At(0), JET2=branchJet.At(1), MUON=branchMuon.At(0)
-                branches=[branchJet.At(0),branchJet.At(1),branchMuon.At(0)]
-                EventWeight = branchEvent.At(0).Weight
-                observ = { 'EventWeight' : EventWeight*luminosity*1000/LoadEvents }
+        for event in islice(mytree,LoadEvents):
+            # improve process definitions to use iterators
+            if event.Jet.GetEntries() == process["Njets"] and event.Muon.GetEntries() == process["Nmuons"]:
+                branches=[event.Jet.At(0),event.Jet.At(1),event.Muon.At(0)] # this should be changed depending on process
+                observ = { 'EventWeight' : event.Event.At(0).Weight*luminosity*1000/LoadEvents }
                 for obs in observables:
                     observ[obs] = calc_obs(obs,branches)              
                 obj.obs=obj.obs.append(observ, ignore_index=True)
             obj.saveObs()
 
-    del chain
-    del treeReader
+    del myfile
+    del mytree
     # total cross section assumes equal weights i.e calchep
     obj.totXsec=obj.obs["EventWeight"][0]*obj.LoadEvents/(obj.luminosity)
 
