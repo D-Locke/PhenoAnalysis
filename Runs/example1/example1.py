@@ -7,7 +7,7 @@ from PhenoAnalysis import *
 if __name__ == '__main__':
 	luminosity=100								# fb^-1
 	LoadEvents=500 								# how many events to load? For testing on large files
-	observables=["Mmiss","PTjj"]			# which observables to compute, store and plot - check they are defined in observables.py
+	observables=["Mmiss","Ejj"]			# which observables to compute, store and plot - check they are defined in observables.py
 	process={"Njets" : 2, "Nmuons" : 1} 		# labels the required final state, here ==2 jets and ==1 muons
 
 	rootDir='.'			# directory of event files

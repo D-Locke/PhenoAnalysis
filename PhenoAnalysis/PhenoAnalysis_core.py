@@ -113,30 +113,31 @@ def parallel_readLHE(args):
     return objects
 
 
-def ApplyCuts(objects, observable, limits):
+def ApplyCut(objects, observable, limits):
     """hacky way, would be better to act on event objects than this obs dataframe!"""
     low=limits[0]
     high=limits[1]
-    efficiencies={}
+    Efficiency=-1
+
+    for obj in objects:
+        obj.before=obj.Nevents
+        if observable!="NoCuts": 
+            obj.obs = obj.obs[obj.obs[observable]>low]
+            obj.obs = obj.obs[obj.obs[observable]<high]
+
     print observable+' cut\t'+'['+str(low)+','+str(high)+']\n'
     for obj in objects:
-        before=obj.Nevents 
-        obj.obs = obj.obs[obj.obs[observable]>low]
-        obj.obs = obj.obs[obj.obs[observable]<high]
-        # print cutObs.head()
         print "\n\n"
         print "\t"+str(obj.label)
         print "\t-----------------------"
-        after=obj.Nevents
-        print "\tEvents    : "+str(after)+'/'+str(before)
-        print "\tXsec [fb] : "+str(after/obj.luminosity)+'/'+str(before/obj.luminosity)
-        if before!=0:
-            Efficiency=after/before
-        else:
-            Efficiency=-1
+        print "\tXsec [fb] : "+str(obj.Nevents/obj.luminosity)+'/'+str(obj.before/obj.luminosity)
+        if obj.before!=0:
+            Efficiency=obj.Nevents/obj.before
         print "\tEfficiency: ",str(Efficiency)
-        efficiencies[obj.label]=Efficiency
-    return efficiencies
+        if obj.type=="signal":
+            BGevents=sum(bg.Nevents for bg in objects if (bg.type=="background" and (bg.model=="SM" or bg.model==obj.model)))
+            print "\ts/b: "+str(float(obj.Nevents)/BGevents)
+            print "\ts/sqrt(s+b): "+str(significance(obj.Nevents,BGevents))
 
 
 def significance(s,b):
@@ -149,13 +150,15 @@ def cutNplot(objects, cuts,**kwargs):
     for obj in objects:
         decEvents[obj.label]=obj.Nevents
 
-    AllEff={}
+    print "\nAPPLYING CUT 0: \n**************************"
+    ApplyCut(objects,"NoCuts",[0,0])
     quickPlot(objects ,"NoCuts")
     Dalitz(objects ,"NoCuts")
+
     for i,cut in enumerate(cuts):
         print "\nAPPLYING CUT "+str(i+1)+": \n**************************"
-        AllEff[cut]=ApplyCuts(objects, cut, cuts[cut])
-        if PlotCuts==True:
+        ApplyCut(objects, cut, cuts[cut])
+        if PlotCuts==True or i==len(cuts)-1:
             quickPlot(objects , cut+"Cut")
             Dalitz(objects , cut+"Cut")
 
@@ -182,12 +185,10 @@ def cutNplot(objects, cuts,**kwargs):
             BGevents=sum(bg.Nevents for bg in objects if (bg.type=="background" and (bg.model=="SM" or bg.model==obj.model)))
             if BGevents!=0:
                 print obj.label+': '
-                sigEff=float(obj.Nevents)/decEvents[obj.label]
-                bgEff=float(BGevents)/decBGevents
-                print "\t\tSignal efficiency: "+str(sigEff)
-                print "\t\tBackground efficiency: "+str(bgEff)
-                signif = significance(obj.Nevents,BGevents)
-                print "\t\ts/sqrt(s+b): "+str(signif)
+                print "\t\tSignal efficiency: "+str(float(obj.Nevents)/decEvents[obj.label])
+                print "\t\tBackground efficiency: "+str(float(BGevents)/decBGevents)
+                print "\t\ts/b: "+str(float(obj.Nevents)/BGevents)
+                print "\t\ts/sqrt(s+b): "+str(significance(obj.Nevents,BGevents))
             else:
                 print "No backgrounds supplied"
     print "\n############################################################\n"

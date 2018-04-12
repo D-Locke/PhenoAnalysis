@@ -7,12 +7,18 @@ Reading of files is done in parallel, using multiprocessing module.
 ## Requirements:
 Python2.x, ROOT5.x, pyROOT, libDelphes, pandas, numpy, matplotlib
 
-For LHE:
-Install python modules (pandas,numpy,matplotlib) using pip
+### Installation:
+1. Install python modules (pandas,numpy,matplotlib)
+...```pip install numpy pandas matplotlib```
+2. Install ROOT, as described here: https://root.cern.ch/pyroot
+3. Build Delphes 3.x and dir containing libDelphes.so in LD_LIBRARY_PATH (or place in e.g ~Packages/root/build/lib/root/)
+4. Make sure root is sourced, and libDelphes.so can be found
+...```python -c "import ROOT"```
+5. If using ROOT6: In PhenoAnalysis/PhenoAnalysis/ROOTreader.py, lines 10,11 - change path to your Delphes dir
 
-For ROOT:
-Install ROOT5.x with pyROOT flags, as described here: https://root.cern.ch/pyroot
-Build Delphes 3.x and take libDelphes.so and place in e.g ~Packages/root/build/lib/root/
+### Adding new analysis:
+1. Specify new observables in observables.py, add plot range and labels in plotting.py
+2. Write code e.g example1, containing required observables, cuts, and various definitions 
 
 
 ## Features:
@@ -29,6 +35,7 @@ Build Delphes 3.x and take libDelphes.so and place in e.g ~Packages/root/build/l
 * parallelize object initialization
 
 ### Future:
+* avoid having to edit core code for new processes, observables etc.
 * add pdf report generation, with cut-flow tables
 * improve speed by using iterators
 * instead use upROOT for parsing? Avoids requirement of ROOT install, libDelphes...

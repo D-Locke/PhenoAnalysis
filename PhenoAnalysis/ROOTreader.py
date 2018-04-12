@@ -7,6 +7,8 @@ from observables import calc_obs
 from itertools import islice
 import PhenoAnalysis_core as PA
 pd.set_option('display.expand_frame_repr', False)
+ROOT.gROOT.ProcessLine('.include /home/dan/DELPHES/Delphes-3.4.1/')
+ROOT.gROOT.ProcessLine('.include /home/dan/DELPHES/Delphes-3.4.1/external')
 ROOT.gSystem.Load('libDelphes')
 
 def readROOT(args):
