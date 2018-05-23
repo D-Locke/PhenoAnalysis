@@ -25,6 +25,11 @@ class PAData:
 
 
     @property
+    def MCevents(self):
+        """ number of MC events that are curerntly in object """
+        return len(self.obs)
+
+    @property
     def Nevents(self):
         """ for number of detector level events remaining after cuts """
         if len(self.obs) < 1:
@@ -53,11 +58,13 @@ class PAData:
         return ("\n{label} \n===========\nTotal Number of MC events: {events}"
             "\nLuminosity: {lum}fb^-1"
             "\nTotal CrossSection [fb]: {totXsec}\nProcess CrossSection[fb]: {Xsec}\n"
+            "Surviving MC events: {MCevents}\n"
             "Observables:\n {obs}".format(label=self.label,
-                                                       events=self.LoadEvents,
+                                                       events=self.LoadEvents,                                            
                                                        lum=self.luminosity,
                                                        totXsec=self.totXsec,
                                                        Xsec=self.Xsec,
+                                                       MCevents=self.MCevents,
                                                        obs=self.obs.head()))
     def ObsFilename(self):
         return './data/'+self.label.replace(' ', '_')+'_'+str(self.LoadEvents)+'_obs_'+str(self.filetype)+'.dat.gz'
@@ -136,15 +143,33 @@ def ApplyCut(objects, observable, limits):
         print "\tEfficiency: ",str(Efficiency)
         if obj.type=="signal":
             BGevents=sum(bg.Nevents for bg in objects if (bg.type=="background" and (bg.model=="SM" or bg.model==obj.model)))
-            print "\ts/b: "+str(float(obj.Nevents)/BGevents)
-            print "\ts/sqrt(s+b): "+str(significance(obj.Nevents,BGevents))
+            if BGevents!=0:
+                print "\ts/b: "+str(int(obj.Nevents))+" / "+str(int(BGevents))  
+                print "\ts/b: "+str(float(obj.Nevents)/BGevents)
+                print "\ts/sqrt(s+b): "+str(significance(obj.Nevents,BGevents))
+            else:
+                "\tZero background events remain!"
 
 
 def significance(s,b):
     return s/sqrt(s+b)
 
+def EmuOutput(objects, cuts):
+    for obj in objects:
+        print obj.label, obj.MCevents
+    for i,cut in enumerate(cuts):
+        print "\nAPPLYING CUT "+str(i+1)+": \n**************************"
+        ApplyCut(objects, cut, cuts[cut])
+    EmuPlot(objects)
+    for obj in objects:
+        print obj.label, obj.MCevents
+
+
 def cutNplot(objects, cuts,**kwargs):
     #events of this decay chain:
+    #EmuPlot(objects)
+    #CompPlot(objects , "NoCuts")
+
     PlotCuts=kwargs.get('PlotCuts',False)
     decEvents={}
     for obj in objects:
@@ -161,6 +186,9 @@ def cutNplot(objects, cuts,**kwargs):
         if PlotCuts==True or i==len(cuts)-1:
             quickPlot(objects , cut+"Cut")
             Dalitz(objects , cut+"Cut")
+
+    # EmuPlot(objects)
+    #CompPlot(objects , "AllCuts")
 
     print "\n\n\n~~~~~~~~~~~~~~~~~~~~~~~~~~"
     print "TOTALS: \n"
@@ -190,7 +218,7 @@ def cutNplot(objects, cuts,**kwargs):
                 print "\t\ts/b: "+str(float(obj.Nevents)/BGevents)
                 print "\t\ts/sqrt(s+b): "+str(significance(obj.Nevents,BGevents))
             else:
-                print "No backgrounds supplied"
+                print "\t\tZero background events remain!"
     print "\n############################################################\n"
 
 

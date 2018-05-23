@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 import matplotlib.colors as cols
 import itertools
 import numpy as np
+import csv
 
 def getLabel(observable):
     plotLabel={}
@@ -35,6 +36,61 @@ def getRange(observable):
     plotRange['CosThetamu']=(-1.0,1.0)
     return plotRange[observable]
 
+def getBinCenters(nbins,max):
+    return [float(max)/nbins*(0.5+n) for n in range(0,nbins)]
+
+def writeEmuInfo(bincenters,sig,bg_total,model,filetype):
+    with open('./cutNplot/'+str(filetype)+'/EmuPlots/'+model+'_Emu_'+filetype+'.dat', 'w') as f:
+        f.write('BIN_CENTRE,SIG,BG\n')
+        writer = csv.writer(f)#, delimiter='\t')
+        writer.writerows(zip(bincenters,sig,bg_total))
+
+def EmuPlot(objects):
+    observables=[key for key in objects[0].obs.keys()]
+    observables.remove("EventWeight")
+    x="Emu"
+    #plt.title('$e^+e^- \\to j,j,\\mu,\\nu(+D,D)$ at '+str(objects[0].luminosity)+'$fb^{-1}$ (AFTER '+cutlabel+')')
+    #plt.yscale('log')
+    plt.xlabel(getLabel(x))
+    plt.ylabel('entries / bin')
+    nbins=30
+    bg_total=np.zeros(nbins)
+    for obj in objects:
+        if obj.type=="signal":
+            for bg in objects:
+                if (bg.type=="background" and (bg.model=="SM" or bg.model==obj.model)):
+                   (bgv, bins, patches) = plt.hist(bg.obs[x], nbins, range=(0,250),weights=bg.obs['EventWeight'], label=bg.label, histtype = 'step', linestyle=bg.plotStyle['linestyle'],color=bg.plotStyle['color'])
+                   bg_total=bg_total+bgv 
+            (sig, bins, patches) = plt.hist(obj.obs[x], nbins, range=(0,250),weights=obj.obs['EventWeight'], label=obj.label, histtype = 'step', linestyle=obj.plotStyle['linestyle'],color=obj.plotStyle['color'])
+            writeEmuInfo(getBinCenters(nbins,250.0),sig,bg_total,obj.model, obj.filetype)
+
+            plt.legend(loc='upper left', prop={'size':6}, bbox_to_anchor=(1,1))
+            plt.tight_layout()
+            plt.savefig('./cutNplot/'+str(objects[0].filetype)+'/EmuPlots/'+str(objects[0].filetype)+'_plot_'+obj.model+'_'+x+'.pdf')
+            plt.close()
+  
+
+    #axes[1].scatter(df[x],df[y], c=df['OMEGA'],cmap='jet',s=0.1,rasterized=True,norm=norm)
+
+def CompPlot(objects, cutlabel):
+    observables=[key for key in objects[0].obs.keys()]
+    observables.remove("EventWeight")
+    for x in observables:
+    #plt.title('$e^+e^- \\to j,j,\\mu,\\nu(+D,D)$ at '+str(objects[0].luminosity)+'$fb^{-1}$ (AFTER '+cutlabel+')')
+    #plt.yscale('log')
+        plt.xlabel(getLabel(x))
+        plt.ylabel('entries / bin')
+        nbins=20
+        bgs=[]
+        for obj in objects:
+            if obj.type=="signal":
+                plt.hist(obj.obs[x], nbins, range=getRange(x),density=True, label=obj.label, histtype = 'step', linestyle=obj.plotStyle['linestyle'],color=obj.plotStyle['color'])
+        plt.legend(loc='upper left', prop={'size':6}, bbox_to_anchor=(1,1))
+        plt.tight_layout()
+        plt.savefig('./cutNplot/'+str(objects[0].filetype)+'/CompPlots/'+str(objects[0].filetype)+'_plot_'+obj.model+'_'+x+'_'+cutlabel+'.pdf')
+        plt.close()
+
+
 def quickPlot(objects, cutlabel):
     observables=[key for key in objects[0].obs.keys()]
     observables.remove("EventWeight")
@@ -47,7 +103,8 @@ def quickPlot(objects, cutlabel):
         for obj in objects:
             plt.hist(obj.obs[x], nbins, range=getRange(x),weights=obj.obs['EventWeight'], label=obj.label, histtype = 'step', linestyle=obj.plotStyle['linestyle'],color=obj.plotStyle['color'])
         #axes[1].scatter(df[x],df[y], c=df['OMEGA'],cmap='jet',s=0.1,rasterized=True,norm=norm)
-        plt.legend()
+        plt.legend(loc='upper left', prop={'size':6}, bbox_to_anchor=(1,1))
+        plt.tight_layout()
         plt.savefig('./cutNplot/'+str(objects[0].filetype)+'/'+str(objects[0].filetype)+'_plot_'+x+'_'+cutlabel+'.pdf')
         plt.close()
 

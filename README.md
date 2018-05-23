@@ -35,6 +35,7 @@ Python2.x, ROOT5.x, pyROOT, libDelphes, pandas, numpy, matplotlib
 * parallelize object initialization
 
 ### Future:
+* use of multiple signal event files (like background)
 * avoid having to edit core code for new processes, observables etc.
 * add pdf report generation, with cut-flow tables
 * improve speed by using iterators

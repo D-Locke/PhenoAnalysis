@@ -83,6 +83,9 @@ def readLHE(args):
 
     print "Reading LHE file: "+str(name)
 
+    #if name[-2:]==".gz": #write functions to deal with zipped files
+
+
     tree = ET.parse(name)
     root = tree.getroot()    
     numberOfEntries = len(root)
