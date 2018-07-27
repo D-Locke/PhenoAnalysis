@@ -8,8 +8,13 @@ import csv
 
 def getLabel(observable):
     plotLabel={}
+    plotLabel['NoCuts']="No cuts"
     plotLabel['Mmiss']="$M_{miss} [GeV]$"
+    plotLabel['Mmiss_m']="$M_{miss}(p_\mu^{z(-)}) [GeV]$"
+    plotLabel['Mmiss_p']="$M_{miss}(p_\mu^{z(+)}) [GeV]$"
     plotLabel['PTmiss']="$p_T^{miss} [GeV]$"
+    plotLabel['Mjj']="$M_{jj}$ [GeV]"
+    plotLabel['Mjets']="$M_{jets}$ [GeV]"
     plotLabel['Ejj']="$E_{jj}$ [GeV]"
     plotLabel['PTjj']="$p^T_{jj}$ [GeV]"
     plotLabel['Etajj']="$\\eta_{jj}$"
@@ -19,13 +24,22 @@ def getLabel(observable):
     plotLabel['PTmu']="$p_T^{\\mu}$ [GeV]"
     plotLabel['Etamu']="$\\eta_{\\mu}$"
     plotLabel['CosThetamu']="$\\cos{\\theta_{\\mu}}$"
+    plotLabel['Tracks']="$N_{{tracks}}$"
+    plotLabel['Sum_CosTheta']="$\sum_{{vis}} |\\cos{\\theta_{\\mu}}|$"
+    plotLabel['P_WW']="$M_{{WW}}$ [GeV]"
+
+    
     return plotLabel[observable]
 
 def getRange(observable):
     plotRange={}
     plotRange['Mmiss']=(0,500)
+    plotRange['Mmiss_m']=(0,500)
+    plotRange['Mmiss_p']=(0,500)
     plotRange['PTmiss']=(0,500)
     plotRange['Ejj']=(0,500)
+    plotRange['Mjj']=(0,500)
+    plotRange['Mjets']=(0,500)
     plotRange['PTjj']=(0,500)
     plotRange['Etajj']=(-50.0,50.0)
     plotRange['CosThetajj']=(-1.0,1.0)
@@ -34,18 +48,22 @@ def getRange(observable):
     plotRange['PTmu']=(0,500)
     plotRange['Etamu']=(-50.0,50.0)
     plotRange['CosThetamu']=(-1.0,1.0)
+    plotRange['Tracks']=(0,40.0)
+    plotRange['Sum_CosTheta']=(0,5.0)
+    plotRange['P_WW']=(0,500)
     return plotRange[observable]
 
 def getBinCenters(nbins,max):
     return [float(max)/nbins*(0.5+n) for n in range(0,nbins)]
 
-def writeEmuInfo(bincenters,sig,bg_total,model,filetype):
-    with open('./cutNplot/'+str(filetype)+'/EmuPlots/'+model+'_Emu_'+filetype+'.dat', 'w') as f:
+def writeEmuInfo(bincenters,sig,bg_total,model,filetype,obs):
+    with open('./cutNplot/'+str(filetype)+'/EmuPlots/'+model+'_'+obs+'_'+filetype+'.dat', 'w') as f:
         f.write('BIN_CENTRE,SIG,BG\n')
         writer = csv.writer(f)#, delimiter='\t')
         writer.writerows(zip(bincenters,sig,bg_total))
 
-def EmuPlot(objects):
+def EmuPlot(objects, nbins):
+    """ made for outputting correct info on Emu dist for fitting later"""
     observables=[key for key in objects[0].obs.keys()]
     observables.remove("EventWeight")
     x="Emu"
@@ -53,21 +71,22 @@ def EmuPlot(objects):
     #plt.yscale('log')
     plt.xlabel(getLabel(x))
     plt.ylabel('entries / bin')
-    nbins=30
-    bg_total=np.zeros(nbins)
-    for obj in objects:
-        if obj.type=="signal":
-            for bg in objects:
-                if (bg.type=="background" and (bg.model=="SM" or bg.model==obj.model)):
-                   (bgv, bins, patches) = plt.hist(bg.obs[x], nbins, range=(0,250),weights=bg.obs['EventWeight'], label=bg.label, histtype = 'step', linestyle=bg.plotStyle['linestyle'],color=bg.plotStyle['color'])
-                   bg_total=bg_total+bgv 
-            (sig, bins, patches) = plt.hist(obj.obs[x], nbins, range=(0,250),weights=obj.obs['EventWeight'], label=obj.label, histtype = 'step', linestyle=obj.plotStyle['linestyle'],color=obj.plotStyle['color'])
-            writeEmuInfo(getBinCenters(nbins,250.0),sig,bg_total,obj.model, obj.filetype)
 
-            plt.legend(loc='upper left', prop={'size':6}, bbox_to_anchor=(1,1))
-            plt.tight_layout()
-            plt.savefig('./cutNplot/'+str(objects[0].filetype)+'/EmuPlots/'+str(objects[0].filetype)+'_plot_'+obj.model+'_'+x+'.pdf')
-            plt.close()
+    for x in ["Emu"]:#,"Ejj"]:
+        for obj in objects:
+            if obj.type=="signal":
+                bg_total=np.zeros(nbins)
+                for bg in objects:
+                    if (bg.type=="background" and (bg.model=="SM" or bg.model==obj.model)):
+                       (bgv, bins, patches) = plt.hist(bg.obs[x], nbins, range=(0,250),weights=bg.obs['EventWeight'], label=bg.label, histtype = 'step', linestyle=bg.plotStyle['linestyle'],color=bg.plotStyle['color'])
+                       bg_total=bg_total+bgv 
+                (sig, bins, patches) = plt.hist(obj.obs[x], nbins, range=(0,250),weights=obj.obs['EventWeight'], label=obj.label, histtype = 'step', linestyle=obj.plotStyle['linestyle'],color=obj.plotStyle['color'])
+                writeEmuInfo(getBinCenters(nbins,250.0),sig,bg_total,obj.model, obj.filetype, x)
+
+                plt.legend(loc='upper left', prop={'size':6}, bbox_to_anchor=(1,1))
+                plt.tight_layout()
+                plt.savefig('./cutNplot/'+str(objects[0].filetype)+'/EmuPlots/'+str(objects[0].filetype)+'_plot_'+obj.model+'_'+x+'.pdf')
+                plt.close()
   
 
     #axes[1].scatter(df[x],df[y], c=df['OMEGA'],cmap='jet',s=0.1,rasterized=True,norm=norm)
@@ -99,7 +118,7 @@ def quickPlot(objects, cutlabel):
         plt.yscale('log')
         plt.xlabel(getLabel(x))
         plt.ylabel('entries / bin')
-        nbins=20
+        nbins=30
         for obj in objects:
             plt.hist(obj.obs[x], nbins, range=getRange(x),weights=obj.obs['EventWeight'], label=obj.label, histtype = 'step', linestyle=obj.plotStyle['linestyle'],color=obj.plotStyle['color'])
         #axes[1].scatter(df[x],df[y], c=df['OMEGA'],cmap='jet',s=0.1,rasterized=True,norm=norm)

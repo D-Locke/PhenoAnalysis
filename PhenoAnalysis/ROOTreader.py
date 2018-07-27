@@ -11,9 +11,21 @@ ROOT.gROOT.ProcessLine('.include /home/dan/DELPHES/Delphes-3.4.1/')
 ROOT.gROOT.ProcessLine('.include /home/dan/DELPHES/Delphes-3.4.1/external')
 ROOT.gSystem.Load('libDelphes')
 
+def PrintEvent(event):
+    # event.Show() #LISTS ALL INFO
+    print "\nEvent info\n-------"
+    for i,muon in enumerate(event.Muon):
+        print "Muon {}: {},{}".format(i,muon.P4().E(), muon.Charge)
+    for i,jet in enumerate(event.Jet):
+        print "Jet {}: {},{}".format(i,jet.P4().E(), jet.Charge)
+    for i,track in enumerate(event.Track):
+        print "Track {}: {},{}".format(i,jet.P4().E(), jet.Charge)
+
+
+
 def readROOT(args):
     """Will parse root file into ROOTData object"""
-    filename,LoadEvents,luminosity,label,type,model,process,observables,plotStyle = args
+    filename,LoadEvents,luminosity,Energy,label,type,model,process,observables,plotStyle,recalc = args
 
     print "Reading ROOT file: "+str(filename)
     
@@ -27,19 +39,27 @@ def readROOT(args):
         print ""
         LoadEvents=numberOfEntries
 
-    obj = PA.PAData('ROOT',numberOfEntries,LoadEvents,luminosity,label,type,model,process,plotStyle)
-
+    obj = PA.PAData('ROOT',numberOfEntries,LoadEvents,luminosity,Energy,label,type,model,process,plotStyle)
     # modify below to check dataframe.keys() contains all observables required, ifnot then compute just that column and append.
-    if os.path.isfile(obj.ObsFilename):
+    if os.path.isfile(obj.ObsFilename) and recalc==False:
         obj.readObs()
     else:
         for event in islice(mytree,LoadEvents):
-            if event.Jet.GetEntries() == process["Njets"] and event.Muon.GetEntries() == process["Nmuons"]:
-                branches=[event.Jet.At(0),event.Jet.At(1),event.Muon.At(0)] # this should be changed depending on process
+            if process.preselection(event):
+                print dir(event.Jet.At(0))
+                print dir(event.Jet.At(0).Constituents)
+                for c in event.Jet.At(0).Constituents:
+                    print c
+                print "\n\n\n"
+                print event.Jet.At(0).Particles.GetObjectInfo
+                exit()
+                #PrintEvent(event)
+                #branches=[event.Jet.At(0),event.Jet.At(1),event.Muon.At(0)] # this should be changed depending on process
                 observ = { 'EventWeight' : event.Event.At(0).Weight*luminosity*1000/LoadEvents }
                 for obs in observables:
-                    observ[obs] = calc_obs(obs,branches)              
+                    observ[obs] = calc_obs(Energy,obs,event,process.proc_label)       
                 obj.obs=obj.obs.append(observ, ignore_index=True)
+                del observ
         obj.saveObs()
 
     del myfile

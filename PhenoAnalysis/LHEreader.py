@@ -9,6 +9,9 @@ pd.set_option('display.expand_frame_repr', False)
 from itertools import islice
 import PhenoAnalysis_core as PA
 
+""" TODO:
+* Make Jet,Muon etc. classes similar to ROOT?
+"""
 class Particle:
     def __init__(self,pdgid,spin,px=0,py=0,pz=0,energy=0,mass=0):
         self.pdgid=pdgid
@@ -69,17 +72,22 @@ class Event:
         self.particles.append(particle)
         
     def getParticlesByIDs(self,idlist):
-        partlist=[]
+        partlist=[] # make analogue of TClonesArray with atleast GetEntries()
         for pdgid in idlist:
             for p in self.particles:
                 if p.pdgid==pdgid:
                     partlist.append(p)
         return partlist
 
-    
+def preselection(jets,muons,process):
+    if len(jets) == process["Njets"] and len(muons) == process["Nmuons"]: 
+        return True
+    else:
+        return False
+
 def readLHE(args):
     """Will parse root file into ROOTData object"""
-    name,LoadEvents,luminosity,label,type,model,process,observables,plotStyle = args
+    name,LoadEvents,luminosity,Energy,label,type,model,process,observables,plotStyle,recalc = args
 
     print "Reading LHE file: "+str(name)
 
@@ -90,9 +98,9 @@ def readLHE(args):
     root = tree.getroot()    
     numberOfEntries = len(root)
     
-    obj = PA.PAData('LHE',numberOfEntries,LoadEvents,luminosity,label,type,model,process,plotStyle)
+    obj = PA.PAData('LHE',numberOfEntries,LoadEvents,luminosity,Energy,label,type,model,process,plotStyle)
 
-    if os.path.isfile(obj.ObsFilename):
+    if os.path.isfile(obj.ObsFilename) and recalc==False:
         obj.readObs()
     else:
         for child in islice(root,LoadEvents):
@@ -113,15 +121,15 @@ def readLHE(args):
                     p=Particle(int(part_data[0]), float(part_data[12]), float(part_data[6]), float(part_data[7]), float(part_data[8]), float(part_data[9]), float(part_data[10]))
                     event.__addParticle__(p)
 
-                    jets = event.getParticlesByIDs([1,2,3,4,5,6,-1,-2,-3,-4,-5,-6])
-                    muons=event.getParticlesByIDs([13,-13])
-                    if len(jets) == process["Njets"] and len(muons) == process["Nmuons"]:
-                        observ = { 'EventWeight' : EventWeight*luminosity*1000/LoadEvents }
-                        for obs in observables:
-                        #JET1,JET2,MUON = partList
-                            parts = jets+muons
-                            observ[obs] = calc_obs(obs,parts)              
-                        obj.obs=obj.obs.append(observ, ignore_index=True)
+                event.Jet  = event.getParticlesByIDs([1,2,3,4,5,6,-1,-2,-3,-4,-5,-6])
+                event.Muon = event.getParticlesByIDs([13,-13])
+
+                if process.preselection(event): 
+                    observ = { 'EventWeight' : EventWeight*luminosity*1000/LoadEvents }
+                    for obs in observables:
+                    #JET1,JET2,MUON = partList
+                        observ[obs] = calc_obs(Energy,obs,event,process.proc_label)              
+                    obj.obs=obj.obs.append(observ, ignore_index=True)
          
         obj.saveObs()
     del tree

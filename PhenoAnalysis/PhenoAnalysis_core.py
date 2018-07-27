@@ -9,10 +9,11 @@ from plotting import *
 
 class PAData:
     """Object containing metadata of root file, and observables dataframe"""
-    def __init__(self,filetype,Nentries,LoadEvents,luminosity,label,type,model,process,plotStyle):
+    def __init__(self,filetype,Nentries,LoadEvents,luminosity,Energy,label,type,model,process,plotStyle):
         self.filetype=filetype
         self.Nentries=Nentries      # this is how many events stored in full .ROOT file
         self.LoadEvents=LoadEvents # this is how many to load
+        self.Energy=Energy
         self.luminosity=luminosity
         self.obs=pd.DataFrame()  # for shoving in dataframe containing observables - SHOULD INSTEAD CREATE METHODS TO HAVE OBSERVABLES IN EACH EVENT CLASS!
         self.events=[]
@@ -40,6 +41,7 @@ class PAData:
 
     @property
     def totXsec(self):
+        """ total Xsec before any cuts """
         if len(self.obs) < 1:
             totXsec=0
         else:
@@ -48,6 +50,7 @@ class PAData:
 
     @property
     def Xsec(self):
+        """ for getting Xsec after some cuts """
         if len(self.obs) < 1:
             Xsec=0
         else:
@@ -56,11 +59,13 @@ class PAData:
 
     def __str__(self):
         return ("\n{label} \n===========\nTotal Number of MC events: {events}"
+            "\nBeam Energy: {E}GeV"
             "\nLuminosity: {lum}fb^-1"
             "\nTotal CrossSection [fb]: {totXsec}\nProcess CrossSection[fb]: {Xsec}\n"
             "Surviving MC events: {MCevents}\n"
             "Observables:\n {obs}".format(label=self.label,
-                                                       events=self.LoadEvents,                                            
+                                                       events=self.LoadEvents,
+                                                       E=self.Energy,                                            
                                                        lum=self.luminosity,
                                                        totXsec=self.totXsec,
                                                        Xsec=self.Xsec,
@@ -119,6 +124,23 @@ def parallel_readLHE(args):
         print obj
     return objects
 
+def printCutHeader(objects):
+    """ produce latex tables with pandas df.to_latex()!!"""
+    tablefiledat = './cutNplot/{}/cutflow_table.dat'.format(objects[0].filetype)
+    with open(tablefiledat, 'w') as f:
+        f.write('Cut\tLower\tUpper')
+        for obj in objects:
+            f.write('\t{}'.format(obj.label))
+        f.write(' \n')
+
+def printCutRow(objects, observable, limits):
+    tablefiledat = './cutNplot/{}/cutflow_table.dat'.format(objects[0].filetype)
+    with open(tablefiledat, 'a') as f:
+        f.write('{}\t{}\t{}'.format(observable,limits[0],limits[1]))
+        for obj in objects:
+            f.write('\t{}'.format(obj.Nevents))
+        f.write('\n')
+
 
 def ApplyCut(objects, observable, limits):
     """hacky way, would be better to act on event objects than this obs dataframe!"""
@@ -149,20 +171,25 @@ def ApplyCut(objects, observable, limits):
                 print "\ts/sqrt(s+b): "+str(significance(obj.Nevents,BGevents))
             else:
                 "\tZero background events remain!"
+    printCutRow(objects, observable, limits)
 
 
 def significance(s,b):
     return s/sqrt(s+b)
 
-def EmuOutput(objects, cuts):
+def EmuOutput(objects, cuts,nbins):
+    decEvents={}
+    for obj in objects:
+        decEvents[obj.label]=obj.Nevents
+
     for obj in objects:
         print obj.label, obj.MCevents
     for i,cut in enumerate(cuts):
         print "\nAPPLYING CUT "+str(i+1)+": \n**************************"
         ApplyCut(objects, cut, cuts[cut])
-    EmuPlot(objects)
-    for obj in objects:
-        print obj.label, obj.MCevents
+    EmuPlot(objects,nbins)
+    printInfo(decEvents,objects)
+
 
 
 def cutNplot(objects, cuts,**kwargs):
@@ -180,6 +207,7 @@ def cutNplot(objects, cuts,**kwargs):
     quickPlot(objects ,"NoCuts")
     Dalitz(objects ,"NoCuts")
 
+    printCutHeader(objects)
     for i,cut in enumerate(cuts):
         print "\nAPPLYING CUT "+str(i+1)+": \n**************************"
         ApplyCut(objects, cut, cuts[cut])
@@ -204,8 +232,13 @@ def cutNplot(objects, cuts,**kwargs):
     for obj in objects:
         cutEvents[obj.label]=obj.Nevents
 
+    printInfo(decEvents,objects)
+
+
+
+def printInfo(decEvents,objects):
     print "\n############################################################"
-    print "\nSIGNIFICANCES: "
+    print "\nTOTAL SIGNIFICANCES: "
     for obj in objects:
         if obj.type=="signal":
             BGevents=0
@@ -214,14 +247,12 @@ def cutNplot(objects, cuts,**kwargs):
             if BGevents!=0:
                 print obj.label+': '
                 print "\t\tSignal efficiency: "+str(float(obj.Nevents)/decEvents[obj.label])
-                print "\t\tBackground efficiency: "+str(float(BGevents)/decBGevents)
+                print "\t\tTotal Background efficiency: "+str(float(BGevents)/decBGevents)
                 print "\t\ts/b: "+str(float(obj.Nevents)/BGevents)
                 print "\t\ts/sqrt(s+b): "+str(significance(obj.Nevents,BGevents))
             else:
                 print "\t\tZero background events remain!"
     print "\n############################################################\n"
-
-
 
 
 
