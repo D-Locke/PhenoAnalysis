@@ -27,7 +27,18 @@ class processes:
 			return True
 		return False
 
+
 	def preselection(self,event):
+		""" see definitions in PhenoAnalysis/preselection.py """
+		#filterPhaseSpace(event.Electron, 20, -2.47, 2.47)
+		#filterPhaseSpace(event.Muon, 20, -3.0, 3.0)
+		#filterPhaseSpace(event.Jet, 20, -3.0, 3.0)
+		#overlapRemoval(event.Jet,event.Electron,0.2)
+		#overlapRemoval_2(event.Electron,event.Jet,0.2,0.4)
+		#overlapRemoval_jm(event.Muon, event.Jet, event.Track,deltaR=0.5,matchingTracks=3)
+		return 0
+
+	def selection(self,event):
 		if self.proc_label=="semi-leptonic":
 			return self.semi_lept(event)
 		if self.proc_label=="hadronic":
@@ -61,6 +72,12 @@ if __name__ == '__main__':
 	cuts['Mmiss']=[170,500]
 	cuts['Ejj']=[0,200]
 
-	cutNplot(objects,cuts,PlotCuts=False)		# will apply cuts in order, print results and calculate 1D and 2D histograms of all observables
+	# define plots
+	plots=[{"label":"Mmiss","binning": 30,"yscale":"log"},{"label":"Ejj","binning": 30,"yscale":"log"}]
+	cutNplot(objects,cuts,plots,PlotCuts=True,Dalitz=False)	# will apply cuts in order, print results and calculate 1D and 2D histograms of all observables
 
-	print "Finished analysis, please see cutNplot for plots and results. Dataframe of observables is stored in /data"
+	print "Finished analysis, see cutNplot for plots and results. Dataframe of observables is stored in /data"
+
+	results=pd.read_csv('cutNplot/LHE/cutflow_table.dat',sep='\t')
+	print '\nFrom cutNplot/LHE/cutflow_table.dat \n======================='
+	print results

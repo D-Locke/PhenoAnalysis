@@ -8,5 +8,5 @@ if len(sys.argv)!=3:
 	exit()
 df =pd.read_csv(sys.argv[1],sep='\t')
 with open(sys.argv[2], 'w') as f:
-	f.write(df.to_latex())
+	f.write(df.to_latex(float_format=lambda x: '%.2f' % x))
 

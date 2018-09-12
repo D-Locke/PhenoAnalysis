@@ -24,10 +24,10 @@ class Particle:
 
     def __str__(self):
         """ What to print when print called on Particle object """
-        return ("Particle, {id} with m={mass}GeV, s={spin}."
-                " Four momentum::({E},{px},{py},{pz})".format(id=self.pdgid,
+        return ("Particle: {id} with m={mass:.2f}GeV, s={spin}."
+                " P4=({E:.2f},{px:.2f},{py:.2f},{pz:.2f})".format(id=self.pdgid,
                                                                mass=self.mass,
-                                                               spin=self.spin/2,
+                                                               spin=self.spin,
                                                                E=self.energy,
                                                                px=self.px,
                                                                py=self.py,
@@ -60,24 +60,44 @@ class Particle:
     @property
     def pt(self):
         return self.p4.Pt()
-    
-    
+
+class partList(list):
+    """ wrapper for list objects to make similar to ROOT TClonesArray """
+    def __init__(self, *args):
+        list.__init__(self, *args)
+        #self.name = 'Muon'
+
+    def GetEntries(self):
+        return len(self)
+
+    def __str__(self):
+        string=""
+        for p in self:
+            string=string+"{}\n",format(p)
+        return string
+
 class Event:
     def __init__(self,num_particles):
-        self.num_particles=num_particles
-        self.particles=[]
+        self.num_particles=num_particles    # this is original number, if remove some then use GetEntries to repopulate this?
+        self.particles=partList()
         
     
     def __addParticle__(self,particle):
         self.particles.append(particle)
         
     def getParticlesByIDs(self,idlist):
-        partlist=[] # make analogue of TClonesArray with atleast GetEntries()
+        partlist=partList() # make analogue of TClonesArray with atleast GetEntries()
         for pdgid in idlist:
             for p in self.particles:
                 if p.pdgid==pdgid:
                     partlist.append(p)
         return partlist
+
+    def __str__(self):
+        string="\nEvent ({} particles):\n============\n".format(self.particles.GetEntries())
+        for p in self.particles:
+            string=string+"\t{}\n".format(p)
+        return string
 
 def preselection(jets,muons,process):
     if len(jets) == process["Njets"] and len(muons) == process["Nmuons"]: 
@@ -123,9 +143,23 @@ def readLHE(args):
 
                 event.Jet  = event.getParticlesByIDs([1,2,3,4,5,6,-1,-2,-3,-4,-5,-6])
                 event.Muon = event.getParticlesByIDs([13,-13])
+                Ws= event.getParticlesByIDs([24,-24])
+                e= event.getParticlesByIDs([11,-11])
 
-                if process.preselection(event): 
+                process.preselection(event)
+                if process.selection(event): 
                     observ = { 'EventWeight' : EventWeight*luminosity*1000/LoadEvents }
+
+                    # print event
+                    # sumEe=e[0].P4().E()+e[1].P4().E()
+                    #pOut=Ws[0].p4+Ws[1].p4
+                    #sumEpPz= (pOut.E()+pOut.Pz())
+                    #sumEmPz= (pOut.E()-pOut.Pz())
+                    # print "sqrt(sHat): {} \t max E+-Pz out: {} \t diff: {}".format(sumEe,max(sumEpPz,sumEmPz),sumEe-max(sumEpPz,sumEmPz))
+                    # print "initial M : {} \t final M: {}".format((e[0].p4+e[1].p4).M(),(Ws[0].p4+Ws[1].p4).M())
+                    #sumEe=500
+                    #print "sqrt(sHat): {} \t max E+-Pz out: {} \t diff: {}".format(sumEe,max(sumEpPz,sumEmPz),sumEe-max(sumEpPz,sumEmPz))
+
                     for obs in observables:
                     #JET1,JET2,MUON = partList
                         observ[obs] = calc_obs(Energy,obs,event,process.proc_label)              

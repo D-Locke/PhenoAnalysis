@@ -6,6 +6,8 @@ from LHEreader import *
 from ROOTreader import *
 from observables import *
 from plotting import *
+from preselection import *
+import copy
 
 class PAData:
     """Object containing metadata of root file, and observables dataframe"""
@@ -18,6 +20,7 @@ class PAData:
         self.obs=pd.DataFrame()  # for shoving in dataframe containing observables - SHOULD INSTEAD CREATE METHODS TO HAVE OBSERVABLES IN EACH EVENT CLASS!
         self.events=[]
         self.label=label
+        self.flabel=label.replace(' ', '_')
         self.type=type # e.g "signal" or "background"
         self.process=process
         self.model=model
@@ -59,12 +62,14 @@ class PAData:
 
     def __str__(self):
         return ("\n{label} \n===========\nTotal Number of MC events: {events}"
+            "\nProccess: {proc}"
             "\nBeam Energy: {E}GeV"
             "\nLuminosity: {lum}fb^-1"
             "\nTotal CrossSection [fb]: {totXsec}\nProcess CrossSection[fb]: {Xsec}\n"
             "Surviving MC events: {MCevents}\n"
             "Observables:\n {obs}".format(label=self.label,
                                                        events=self.LoadEvents,
+                                                       proc=self.process.proc_label,
                                                        E=self.Energy,                                            
                                                        lum=self.luminosity,
                                                        totXsec=self.totXsec,
@@ -72,7 +77,7 @@ class PAData:
                                                        MCevents=self.MCevents,
                                                        obs=self.obs.head()))
     def ObsFilename(self):
-        return './data/'+self.label.replace(' ', '_')+'_'+str(self.LoadEvents)+'_obs_'+str(self.filetype)+'.dat.gz'
+        return './data/'+self.flabel+'_'+str(self.LoadEvents)+'_obs_'+str(self.filetype)+'.dat.gz'
 
     def saveObs(self):
         self.obs.to_csv(self.ObsFilename, compression='gzip', sep='\t',index=False)
@@ -80,6 +85,20 @@ class PAData:
     def readObs(self):
         print "\nDataframe already stored, loading {file} ...\n".format(file=self.ObsFilename)
         self.obs=pd.read_csv(self.ObsFilename, compression='gzip',sep='\t')
+
+    def getBackgrounds(self,objects):
+        """ Given a list of objects, return those that are backgrounds for given signal """
+        bg_objects=[]
+        if self.type=="signal":
+            for obj in objects:
+                if (obj.type=="background" and (obj.model=="SM" or obj.model==self.model)):
+                    bg_objects.append(obj)
+        return bg_objects
+
+    def getTotalBackgroundEvents(self,objects):
+        bg_objects = self.getBackgrounds(objects)
+        return sum(bg.Nevents for bg in bg_objects)
+
 
 
 class Logger:
@@ -131,6 +150,8 @@ def printCutHeader(objects):
         f.write('Cut\tLower\tUpper')
         for obj in objects:
             f.write('\t{}'.format(obj.label))
+            if obj.type=="signal":
+                f.write('\t{0} ({3})\t{1} ({3})\t{2} ({3})'.format('Total BG','S/B','Z',obj.model))
         f.write(' \n')
 
 def printCutRow(objects, observable, limits):
@@ -139,6 +160,12 @@ def printCutRow(objects, observable, limits):
         f.write('{}\t{}\t{}'.format(observable,limits[0],limits[1]))
         for obj in objects:
             f.write('\t{}'.format(obj.Nevents))
+            if obj.type=="signal":
+                totBG=obj.getTotalBackgroundEvents(objects)
+                SoverB=obj.Nevents/totBG
+                Signif=significance(obj.Nevents,totBG)
+                f.write('\t{}\t{}\t{}'.format(totBG,SoverB,Signif))
+
         f.write('\n')
 
 
@@ -164,7 +191,7 @@ def ApplyCut(objects, observable, limits):
             Efficiency=obj.Nevents/obj.before
         print "\tEfficiency: ",str(Efficiency)
         if obj.type=="signal":
-            BGevents=sum(bg.Nevents for bg in objects if (bg.type=="background" and (bg.model=="SM" or bg.model==obj.model)))
+            BGevents=obj.getTotalBackgroundEvents(objects)
             if BGevents!=0:
                 print "\ts/b: "+str(int(obj.Nevents))+" / "+str(int(BGevents))  
                 print "\ts/b: "+str(float(obj.Nevents)/BGevents)
@@ -191,30 +218,49 @@ def EmuOutput(objects, cuts,nbins):
     printInfo(decEvents,objects)
 
 
+def plotCutEffects(object,cuts,plots,**kwargs):
+    objects=[copy.deepcopy(object) for cut in cuts]
+    for obj,cut in zip(objects,cuts):
+        ApplyCut([obj],cut,cuts[cut])
+        obj.label=obj.label+" Cut:"+cut
 
-def cutNplot(objects, cuts,**kwargs):
-    #events of this decay chain:
-    #EmuPlot(objects)
-    #CompPlot(objects , "NoCuts")
+    #set colors
+    cmap = plt.get_cmap('jet')
+    colors = cmap(np.linspace(0, 1.0, len(objects)))
+
+    for i,obj in enumerate(objects):
+        obj.plotStyle={'linestyle': 'dashed','color':colors[i]}
+        #print obj
+    #objects=[copy.deepcopy(object) for cut in cuts]
+    objects=[object]+objects
+    HistPlot(objects ,plots,"CutEffects")
+
+
+def cutNplot(objects, cuts,plots,**kwargs):
 
     PlotCuts=kwargs.get('PlotCuts',False)
+    PlotDalitz=kwargs.get('Dalitz',False)
+    printCutHeader(objects)
+
     decEvents={}
     for obj in objects:
         decEvents[obj.label]=obj.Nevents
 
     print "\nAPPLYING CUT 0: \n**************************"
     ApplyCut(objects,"NoCuts",[0,0])
-    quickPlot(objects ,"NoCuts")
-    Dalitz(objects ,"NoCuts")
+    HistPlot(objects ,plots,"NoCuts")
+    if PlotDalitz: Dalitz(objects ,plots,"NoCuts")
 
-    printCutHeader(objects)
+    
     for i,cut in enumerate(cuts):
         print "\nAPPLYING CUT "+str(i+1)+": \n**************************"
         ApplyCut(objects, cut, cuts[cut])
         if PlotCuts==True or i==len(cuts)-1:
-            quickPlot(objects , cut+"Cut")
-            Dalitz(objects , cut+"Cut")
+            HistPlot(objects, plots, cut+"Cut")
+            if PlotDalitz: Dalitz(objects, plots, cut+"Cut")
 
+    HistPlot(objects ,plots,"AllCuts")
+    if PlotDalitz: Dalitz(objects ,plots,"All`Cuts")
     # EmuPlot(objects)
     #CompPlot(objects , "AllCuts")
 

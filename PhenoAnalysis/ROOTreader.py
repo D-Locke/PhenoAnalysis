@@ -44,17 +44,24 @@ def readROOT(args):
     if os.path.isfile(obj.ObsFilename) and recalc==False:
         obj.readObs()
     else:
-        for event in islice(mytree,LoadEvents):
-            if process.preselection(event):
-                print dir(event.Jet.At(0))
-                print dir(event.Jet.At(0).Constituents)
-                for c in event.Jet.At(0).Constituents:
-                    print c
-                print "\n\n\n"
-                print event.Jet.At(0).Particles.GetObjectInfo
-                exit()
+        for event in islice(mytree,LoadEvents): 
+            #event.Jet=event.GenJet  #test these events with no detector smearing of particles
+            process.preselection(event)
+            if process.selection(event):
+                #print event.Muon[0].IsolationVar
+                #if event.Muon[0].IsolationVar>0.0001: continue
+                # print dir(event.Jet.At(0))
+                # print dir(event.Jet.At(0).Constituents)
+                # event.Jet.At(0).Constituents.Print()
+                # exit()
+                # for c in event.Jet.At(0).Constituents:
+                #     print c
+                # print "\n\n\n"
+                # print event.Jet.At(0).Particles.GetObjectInfo
+                # exit()
                 #PrintEvent(event)
                 #branches=[event.Jet.At(0),event.Jet.At(1),event.Muon.At(0)] # this should be changed depending on process
+                
                 observ = { 'EventWeight' : event.Event.At(0).Weight*luminosity*1000/LoadEvents }
                 for obs in observables:
                     observ[obs] = calc_obs(Energy,obs,event,process.proc_label)       
