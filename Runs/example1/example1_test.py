@@ -3,6 +3,7 @@ import os.path
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), os.path.pardir,os.path.pardir)))
 import collections
 from PhenoAnalysis import *
+from PhenoAnalysis import settings
 
 class processes:
 	"""These should be defined for each analysis - preselection cuts to select 'channels'"""
@@ -49,24 +50,28 @@ class processes:
 			return False
 
 if __name__ == '__main__':
+	AnalysisName = "example1_tests"
 	Energy = 500								# TeV
 	luminosity=100								# fb^-1
-	LoadEvents=5000 								# how many events to load? For testing on large files
+	LoadEvents=1000 								# how many events to load? For testing on large files
 	recalc=True									# if dataframe of observables already stored, recalculate and overwrite if True.
 	observables=["Mmiss","Ejj"]			# which observables to compute, store and plot - check they are defined in observables.py
 	process=processes("semi-leptonic")		#  preselection cuts for defining different channels contained within single file
+
+	# some of this crap should go in global dict
+	settings.init(AnalysisName, Energy, luminosity, process, observables, mode='Custom')
 
 	rootDir='.'			# directory of event files
 	args=[]				# [ name, LoadEvents, luminosity, label, type, model, process, observables, plotStyle ]
 
 	# signals - here is Inert Doublet Model, e+e- -> DD,4*x where x is quark, muon or neutrino
-	args.append([rootDir+'/IDM_signal.lhe', LoadEvents, luminosity, Energy, "eE->DDmNmjj","signal","IDM",process,observables,{'linestyle': 'dashed','color':'green'},recalc])
+	args.append([rootDir+'/IDM_signal.lhe', LoadEvents, "eE->DDmNmjj","signal","IDM",{'linestyle': 'dashed','color':'green'},recalc])
 
 	#backgrounds - here SM background e+e- -> 4*x
-	args.append([rootDir+'/SM_viaWW.lhe', LoadEvents, luminosity, Energy, "eE->WW->mNmjj","background","SM",process,observables,{'linestyle': 'solid','color':'red'},recalc])
+	args.append([rootDir+'/SM_viaWW.lhe', LoadEvents, "eE->WW->mNmjj","background","SM",{'linestyle': 'solid','color':'red'},recalc])
 
 	objects = parallel_readLHE(args)		# parse root files in parallel
-	
+
 	# define cuts here
 	cuts=collections.OrderedDict()
 	cuts['Mmiss']=[170,500]

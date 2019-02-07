@@ -1,6 +1,7 @@
 from ROOT import TLorentzVector
 from itertools import chain,combinations
 from math import sqrt
+import numpy as np
 
 """
 In future create obsevable class, should contain:
@@ -149,6 +150,7 @@ def Sum_CosTheta(parts):
 
 # SHOULD EXTEND OBSERVABLES LIST AND MAKE COMMON TO LHEANALYSIS
 def calc_obs(Energy,obsName,event,process):
+	""" calculate custom functions - most flexible way """
 	""" remember to define ranges and labels in plotting.py! """
 
 	if obsName=="Mmiss":	return M_miss(Energy, chain(event.Jet,event.Muon))
@@ -157,6 +159,7 @@ def calc_obs(Energy,obsName,event,process):
 	elif obsName=="CosThetajj": return CosTheta(event.Jet)
 	elif obsName=="Evis": return E(chain(event.Jet,event.Muon))
 	elif obsName=="Ejets": return E(event.Jet)
+
 	elif obsName=="Mjets": return M(event.Jet)
 	elif obsName=="Mjj": return M_jj(event.Jet)
 	elif obsName=="deltaR_Jmu_min": return deltaR_min(event.Muon,event.Jet)
@@ -180,6 +183,57 @@ def calc_obs(Energy,obsName,event,process):
 	elif obsName=="CosThetamu": return CosTheta(event.Muon)
 	elif obsName=="Tracks": event.Track.GetEntries()
 	elif obsName=="Sum_CosTheta": return Sum_CosTheta(chain(event.Jet,event.Muon))
+	
+	# JetMatching tests ( ONLY WORK FOR ROOT ATM )
+
+	# elif obsName=="Nj": return event.GenJet_size
+	# elif obsName=="PTj1": 
+	# 	if event.GenJet_size>=1:
+	# 		return event.GenJet[0].PT
+	# 	else: return np.nan
+	# elif obsName=="PTj2":
+	# 	if event.GenJet_size>=2:
+	# 		return event.GenJet[1].PT
+	# 	else: return np.nan
+
+	# LHE VERSIONS FOR MWTC STUDY
+	elif obsName=="Nj": 
+		return len(event.Jet)
+	elif obsName=="PTj1": 
+		return event.Jet[0].pt
+	elif obsName=="PTj2": 
+		return event.Jet[1].pt
+	elif obsName=="deltaEta":
+		return abs( event.TaggedJet[0].eta - event.TaggedJet[1].eta )
+	elif obsName=="PTWp":
+		return event.getParticlesByIDs([24])[0].pt
+	elif obsName=="EtaWp":
+		return event.getParticlesByIDs([24])[0].eta
+	elif obsName=="PTWm":
+		return event.getParticlesByIDs([-24])[0].pt
+	elif obsName=="EtaWm":
+		return event.getParticlesByIDs([-24])[0].eta
+	elif obsName=="PT_WW": 
+		return PT(event.Ws)
+	elif obsName=="PT_jj": 
+		return PT(event.TaggedJet)
+	elif obsName=="MWW":
+		return M(event.Ws)
+	elif obsName=="MWWj1j2":
+		return M(event.Ws+event.Jet)
+	elif obsName=="Ej1":
+		return event.Jet[0].energy
+	elif obsName=="Ej2":
+		return event.Jet[1].energy
+	elif obsName=="eta_j1":
+		return event.Jet[0].eta
+	elif obsName=="eta_j2":
+		return event.Jet[1].eta
+
+
+
+
+
 	else: exit('Observable {} not found!'.format(obsName))
 
 

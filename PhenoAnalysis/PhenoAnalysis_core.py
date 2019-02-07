@@ -9,6 +9,14 @@ from plotting import *
 from preselection import *
 import copy
 
+"""
+class RunInfo:
+Should contain:
+* metadata e.g name,lum,energy, lots of the things PADATA shouldn't be storing
+* PAData object "pointers", stored in some structure that makes clear relationships (i.e depends on model and whether sig/bg)
+* cuts, should be dataframe instead of orderedDict really
+* plots with info
+"""
 class PAData:
     """Object containing metadata of root file, and observables dataframe"""
     def __init__(self,filetype,Nentries,LoadEvents,luminosity,Energy,label,type,model,process,plotStyle):
@@ -61,12 +69,12 @@ class PAData:
         return Xsec
 
     def __str__(self):
-        return ("\n{label} \n===========\nTotal Number of MC events: {events}"
+        return ("\n{label} \n===========\nLoaded MC events: {events}"
             "\nProccess: {proc}"
             "\nBeam Energy: {E}GeV"
             "\nLuminosity: {lum}fb^-1"
             "\nTotal CrossSection [fb]: {totXsec}\nProcess CrossSection[fb]: {Xsec}\n"
-            "Surviving MC events: {MCevents}\n"
+            "MC events in proc: {MCevents}\n"
             "Observables:\n {obs}".format(label=self.label,
                                                        events=self.LoadEvents,
                                                        proc=self.process.proc_label,
@@ -82,9 +90,14 @@ class PAData:
     def saveObs(self):
         self.obs.to_csv(self.ObsFilename, compression='gzip', sep='\t',index=False)
 
-    def readObs(self):
-        print "\nDataframe already stored, loading {file} ...\n".format(file=self.ObsFilename)
-        self.obs=pd.read_csv(self.ObsFilename, compression='gzip',sep='\t')
+    def readObs(self, **kwargs):
+        
+        if 'Nrows' in kwargs:
+            print "\nDataframe already stored, loading first {} events from {file} ...\n".format(kwargs['Nrows'],file=kwargs['datFilename'])
+            self.obs=pd.read_csv(kwargs['datFilename'], compression='gzip',sep='\t', nrows=kwargs['Nrows'])        
+        else:
+            print "\nDataframe already stored, loading {file} ...\n".format(file=self.ObsFilename)
+            self.obs=pd.read_csv(self.ObsFilename, compression='gzip',sep='\t')
 
     def getBackgrounds(self,objects):
         """ Given a list of objects, return those that are backgrounds for given signal """
@@ -162,8 +175,11 @@ def printCutRow(objects, observable, limits):
             f.write('\t{}'.format(obj.Nevents))
             if obj.type=="signal":
                 totBG=obj.getTotalBackgroundEvents(objects)
-                SoverB=obj.Nevents/totBG
-                Signif=significance(obj.Nevents,totBG)
+                if totBG>0.0:
+                    SoverB=obj.Nevents/totBG
+                    Signif=significance(obj.Nevents,totBG)
+                else:
+                    SoverB, Signif = -1, -1
                 f.write('\t{}\t{}\t{}'.format(totBG,SoverB,Signif))
 
         f.write('\n')
@@ -237,7 +253,6 @@ def plotCutEffects(object,cuts,plots,**kwargs):
 
 
 def cutNplot(objects, cuts,plots,**kwargs):
-
     PlotCuts=kwargs.get('PlotCuts',False)
     PlotDalitz=kwargs.get('Dalitz',False)
     printCutHeader(objects)
@@ -249,9 +264,9 @@ def cutNplot(objects, cuts,plots,**kwargs):
     print "\nAPPLYING CUT 0: \n**************************"
     ApplyCut(objects,"NoCuts",[0,0])
     HistPlot(objects ,plots,"NoCuts")
+    HistPlot(objects ,plots,"NoCuts_showCuts",showCuts=True,cuts=cuts)
     if PlotDalitz: Dalitz(objects ,plots,"NoCuts")
 
-    
     for i,cut in enumerate(cuts):
         print "\nAPPLYING CUT "+str(i+1)+": \n**************************"
         ApplyCut(objects, cut, cuts[cut])
@@ -259,6 +274,7 @@ def cutNplot(objects, cuts,plots,**kwargs):
             HistPlot(objects, plots, cut+"Cut")
             if PlotDalitz: Dalitz(objects, plots, cut+"Cut")
 
+    # print final plots with all cuts applied
     HistPlot(objects ,plots,"AllCuts")
     if PlotDalitz: Dalitz(objects ,plots,"All`Cuts")
     # EmuPlot(objects)
