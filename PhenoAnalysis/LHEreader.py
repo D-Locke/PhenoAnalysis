@@ -3,14 +3,15 @@ import ROOT
 import pandas as pd
 import numpy as np
 from math import sqrt
-from observables import calc_obs
+
 import xml.etree.ElementTree as ET
 import gzip
 pd.set_option('display.expand_frame_repr', False)
 from itertools import islice
 import PhenoAnalysis_core as PA
 import settings
-import observables_lhe as obslhe
+import observables_builtin as obsbi
+from observables_custom import calc_obs
 
 """ TODO:
 * Make Jet,Muon etc. classes similar to ROOT?
@@ -205,7 +206,7 @@ def readLHE(args):
         if mode=="Builtin":
             obsObjs={}
             for obs in observables:
-                obsObjs[obs] = obslhe.Observable(obs)
+                obsObjs[obs] = obsbi.Observable(obs)
         #######################
 
 

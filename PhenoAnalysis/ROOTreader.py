@@ -3,7 +3,6 @@ import ROOT
 import pandas as pd
 import numpy as np
 from math import sqrt
-from observables import calc_obs
 from itertools import islice
 import PhenoAnalysis_core as PA
 pd.set_option('display.expand_frame_repr', False)
@@ -11,7 +10,8 @@ ROOT.gROOT.ProcessLine('.include /home/dan/DELPHES/Delphes-3.4.1/')
 ROOT.gROOT.ProcessLine('.include /home/dan/DELPHES/Delphes-3.4.1/external')
 ROOT.gSystem.Load('libDelphes')
 import settings
-import observables_lhe as obslhe # TEST WITH THIS!!
+import observables_builtin as obsbi
+from observables_custom import calc_obs
 
 def PrintEvent(event):
     # event.Show() #LISTS ALL INFO
@@ -56,7 +56,7 @@ def readROOT(args):
             # NEW TESTS##########
             obsObjs={}
             for obs in observables:
-                obsObjs[obs] = obslhe.Observable(obs)
+                obsObjs[obs] = obsbi.Observable(obs)
             #######################
 
         for event in islice(mytree,LoadEvents): 
