@@ -1,4 +1,5 @@
 NOTES
+PhenoAnalysis/*.pyc
 Runs/*
 !Runs/example1
 Runs/example1/cutNplot/*
