@@ -49,8 +49,10 @@ def readROOT(args):
 
     obj = PA.PAData('ROOT',numberOfEntries,LoadEvents,luminosity,Energy,label,type,model,process,plotStyle)
     # modify below to check dataframe.keys() contains all observables required, ifnot then compute just that column and append.
-    if os.path.isfile(obj.ObsFilename) and recalc==False:
-        obj.readObs()
+    if datExists(obj, LoadEvents) and recalc==False:
+        # check if dat file with rows > LoadEvents exists
+        datFilename = getDatName(obj, LoadEvents)
+        obj.readObs(Nrows=LoadEvents,datFilename=datFilename)
     else:
         if mode=="Builtin":
             # NEW TESTS##########

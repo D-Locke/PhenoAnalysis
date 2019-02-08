@@ -186,7 +186,7 @@ def printCutRow(objects, observable, limits):
 
 
 def ApplyCut(objects, observable, limits):
-    """hacky way, would be better to act on event objects than this obs dataframe!"""
+    """hacky way, would be better to act on event objects than this obs dataframe?"""
     low=limits[0]
     high=limits[1]
     Efficiency=-1

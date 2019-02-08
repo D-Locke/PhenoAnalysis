@@ -81,9 +81,12 @@ if __name__ == '__main__':
 	plots=[{"label":"Mmiss","binning": 30,"yscale":"log"},
 		{"label":"Ejj","binning": 30,"yscale":"log"}]
 	cutNplot(objects,cuts,plots,PlotCuts=True,Dalitz=False)	# will apply cuts in order, print results and calculate 1D and 2D histograms of all observables
+	cornerPlot(objects, vars=observables, saveas="cornerPlot_allCuts.png")
 
 	print "Finished analysis, see cutNplot for plots and results. Dataframe of observables is stored in /data"
 
 	results=pd.read_csv('cutNplot/LHE/cutflow_table.dat',sep='\t')
+	results.to_html('cutNplot/LHE/cutflow_table.html', float_format=lambda x: '%.2E' % x)
+
 	print '\nFrom cutNplot/LHE/cutflow_table.dat \n======================='
 	print results

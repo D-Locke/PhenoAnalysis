@@ -17,15 +17,13 @@ def mysplit(str):
         head = str.rstrip('0123456789')
         tail = str[len(head):]
         if not tail:	
-        	#if empty then use leading
+        	# if empty then use leading particle
         	tail=1
         return head, int(tail)
 
 
-
-
-
 def branchName(name):
+	""" Should probably read this from SLHA or something - think about how should work with arbitrary ROOT tree structures"""
 	if name=="j":
 		return "Jet"
 	if name=="m" or name=="M":
@@ -36,17 +34,13 @@ def branchName(name):
 		return "Wm"
 
 class Observable:
+	""" Observables - should also add plotting info as kwargs """
 	def __init__(self,label):
 		self.label=label
 		self.latex=self.genLatex()
 		self.funcName = label.split('(')[0]
 		self.partNames = label.split('(')[1].split(')')[0].split(',')
 		self.Parts = [mysplit(s) for s in self.partNames]
-
-		# use getattr on event?
-		# Jet: j
-		# Muon: m,M
-
 
 	def __str__(self):
 		print self.label, self.funcName, self.partNames, self.Parts

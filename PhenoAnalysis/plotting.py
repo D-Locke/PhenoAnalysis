@@ -346,7 +346,7 @@ def cornerPlot(objects, vars, saveas):
     # for i, j in zip(*tril_indices_from(g.axes, 1)):
     #   g.axes[i, j].set_visible(False)
 
-    g.add_legend(fontsize=14, bbox_to_anchor=(1.5,1))
+    g.add_legend(fontsize=22, bbox_to_anchor=(1.5,1), markerscale=4)
 
 
 
