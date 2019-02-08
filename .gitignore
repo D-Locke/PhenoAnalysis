@@ -1,0 +1,7 @@
+NOTES
+*.pyc
+Runs/*
+!Runs/example1
+Runs/example1/cutNplot/Plots/*.pdf
+Runs/example1/cutNplot/Plots/dat/*.dat
+Runs/example1/data/*.dat*
