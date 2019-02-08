@@ -1,0 +1,137 @@
+
+eE->DDmNmjj 
+===========
+Loaded MC events: 1000
+Proccess: semi-leptonic
+Beam Energy: 500GeV
+Luminosity: 100fb^-1
+Total CrossSection [fb]: 34.312288
+Process CrossSection[fb]: 8.40651056
+MC events in proc: 245
+Observables:
+           Ejj  EventWeight       Mmiss
+0  163.854792     3.431229  276.304358
+1  147.362559     3.431229  247.439048
+2  131.223491     3.431229  282.037618
+3   96.381120     3.431229  379.633737
+4  115.883514     3.431229  347.403420
+
+eE->WW->mNmjj 
+===========
+Loaded MC events: 1000
+Proccess: semi-leptonic
+Beam Energy: 500GeV
+Luminosity: 100fb^-1
+Total CrossSection [fb]: 5185.9766
+Process CrossSection[fb]: 1203.1465712
+MC events in proc: 232
+Observables:
+           Ejj  EventWeight       Mmiss
+0  246.164804    518.59766   40.141084
+1  252.425323    518.59766    9.898666
+2  130.997192    518.59766   91.499361
+3  130.308307    518.59766  308.539710
+4  250.741233    518.59766    4.389369
+
+APPLYING CUT 0: 
+**************************
+NoCuts cut	[0,0]
+
+
+
+
+	eE->DDmNmjj
+	-----------------------
+	Xsec [fb] : 8.40651056/8.40651056
+	Efficiency:  1.0
+	s/b: 840 / 120314
+	s/b: 0.00698710428241
+	s/sqrt(s+b): 2.41515239395
+
+
+
+	eE->WW->mNmjj
+	-----------------------
+	Xsec [fb] : 1203.1465712/1203.1465712
+	Efficiency:  1.0
+
+APPLYING CUT 1: 
+**************************
+Mmiss cut	[170,500]
+
+
+
+
+	eE->DDmNmjj
+	-----------------------
+	Xsec [fb] : 8.40651056/8.40651056
+	Efficiency:  1.0
+	s/b: 840 / 15557
+	s/b: 0.0540336064506
+	s/sqrt(s+b): 6.56466592938
+
+
+
+	eE->WW->mNmjj
+	-----------------------
+	Xsec [fb] : 155.579298/1203.1465712
+	Efficiency:  0.129310344828
+
+APPLYING CUT 2: 
+**************************
+Ejj cut	[0,200]
+
+
+
+
+	eE->DDmNmjj
+	-----------------------
+	Xsec [fb] : 8.40651056/8.40651056
+	Efficiency:  1.0
+	s/b: 840 / 12964
+	s/b: 0.0648403277408
+	s/sqrt(s+b): 7.15464742403
+
+
+
+	eE->WW->mNmjj
+	-----------------------
+	Xsec [fb] : 129.649415/155.579298
+	Efficiency:  0.833333333333
+
+
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+TOTALS: 
+
+eE->DDmNmjj: 
+	Events: 840.651056/840.651056
+	Efficiency:1.0
+
+eE->WW->mNmjj: 
+	Events: 12964.9415/120314.65712
+	Efficiency:0.10775862069
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+
+############################################################
+
+TOTAL SIGNIFICANCES: 
+eE->DDmNmjj: 
+		Signal efficiency: 1.0
+		Total Background efficiency: 0.10775862069
+		s/b: 0.0648403277408
+		s/sqrt(s+b): 7.15464742403
+
+############################################################
+
+Finished analysis, see cutNplot for plots and results. Dataframe of observables is stored in /data
+
+From cutNplot/LHE/cutflow_table.dat 
+=======================
+      Cut  Lower  Upper  eE->DDmNmjj  Total BG (IDM)  S/B (IDM)   Z (IDM)  eE->WW->mNmjj 
+0  NoCuts      0      0   840.651056    120314.65712   0.006987  2.415152    120314.65712
+1   Mmiss    170    500   840.651056     15557.92980   0.054034  6.564666     15557.92980
+2     Ejj      0    200   840.651056     12964.94150   0.064840  7.154647     12964.94150

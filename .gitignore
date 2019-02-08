@@ -2,8 +2,3 @@ NOTES
 *.pyc
 Runs/*
 !Runs/example1
-Runs/example1/cutNplot/*
-!Runs/example1/cutNplot/LHE/Plots
-!Runs/example1/cutNplot/LHE/dat
-!Runs/example1/cutNplot/ROOT/Plots
-Runs/example1/data/*
