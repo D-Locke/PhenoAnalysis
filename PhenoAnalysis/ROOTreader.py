@@ -38,7 +38,12 @@ def readROOT(args):
     print "Reading ROOT file: "+str(filename)
     
     myfile=ROOT.TFile(filename)
-    mytree=myfile.Delphes 
+    mytree=myfile.Delphes
+    # WHAT ABOUT ADDING CUSTOM BRANCHES OR ENTIRELY CUSTOM TREE DEF? 
+    # https://root-forum.cern.ch/t/pyroot-adding-a-branch-to-a-tree/2918/2
+    # https://root.cern.ch/gitweb/?p=root.git;a=blob;f=tutorials/pyroot/staff.py;h=d955e2ca7481a9a507cb40dbb71c2f85ac12bbbc;hb=HEAD
+    # e.g for single leaf var:
+    # mytree.Branch('myvar', myvar, 'myvar/D')
 
     numberOfEntries = mytree.GetEntries()
     if LoadEvents > numberOfEntries:

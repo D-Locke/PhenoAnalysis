@@ -4,7 +4,8 @@ import multiprocessing
 
 from LHEreader import *
 from ROOTreader import *
-from observables import *
+from observables_custom import *
+from observables_builtin import *
 from plotting import *
 from preselection import *
 import copy
