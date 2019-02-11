@@ -8,7 +8,9 @@ from observables_custom import *
 from observables_builtin import *
 from plotting import *
 from preselection import *
+import settings
 import copy
+import get_s95 as s95
 
 """
 class RunInfo:
@@ -165,7 +167,10 @@ def printCutHeader(objects):
         for obj in objects:
             f.write('\t{}'.format(obj.label))
             if obj.type=="signal":
-                f.write('\t{0} ({3})\t{1} ({3})\t{2} ({3})'.format('Total BG','S/B','Z',obj.model))
+                if settings.globDict['calc_s95']:
+                    f.write('\t{0} ({5})\t{1} ({5})\t{2} ({5})\t{3} ({5})\t{4} ({5})'.format('Total BG','S/B','S/sqrt(B)','S95', 'r', obj.model))
+                else:
+                    f.write('\t{0} ({3})\t{1} ({3})\t{2} ({3})'.format('Total BG','S/B','S/sqrt(B)',obj.model))
         f.write(' \n')
 
 def printCutRow(objects, observable, limits):
@@ -181,7 +186,12 @@ def printCutRow(objects, observable, limits):
                     Signif=significance(obj.Nevents,totBG)
                 else:
                     SoverB, Signif = -1, -1
-                f.write('\t{}\t{}\t{}'.format(totBG,SoverB,Signif))
+                if settings.globDict['calc_s95']:
+                    S95 = s95.find_s95_exp(totBG,totBG,settings.globDict['sys'])
+                    r = obj.Nevents/S95 #(S-1.64*DeltaS)/S95
+                    f.write('\t{}\t{}\t{}\t{}\t{}'.format(totBG,SoverB,Signif, S95, r))
+                else:
+                    f.write('\t{}\t{}\t{}'.format(totBG,SoverB,Signif))
 
         f.write('\n')
 
@@ -210,16 +220,16 @@ def ApplyCut(objects, observable, limits):
         if obj.type=="signal":
             BGevents=obj.getTotalBackgroundEvents(objects)
             if BGevents!=0:
-                print "\ts/b: "+str(int(obj.Nevents))+" / "+str(int(BGevents))  
+                print "\ts/b: "+str(int(obj.Nevents))+" / "+str(int(BGevents)) 
                 print "\ts/b: "+str(float(obj.Nevents)/BGevents)
-                print "\ts/sqrt(s+b): "+str(significance(obj.Nevents,BGevents))
+                print "\ts/sqrt(b): "+str(significance(obj.Nevents,BGevents))
             else:
                 "\tZero background events remain!"
     printCutRow(objects, observable, limits)
 
 
 def significance(s,b):
-    return s/sqrt(s+b)
+    return s/sqrt(b) # or s/sqrt(s+b)
 
 def EmuOutput(objects, cuts,nbins):
     decEvents={}

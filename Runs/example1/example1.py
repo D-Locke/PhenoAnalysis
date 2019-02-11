@@ -49,10 +49,10 @@ if __name__ == '__main__':
 	LoadEvents=1000 								# how many events to load? For testing on large files
 	recalc=True									# if dataframe of observables already stored, recalculate and overwrite if True.
 	observables=["Mmiss","Ejj"]			# which observables to compute, store and plot - check they are defined in observables.py
-	process=processes("semi-lept")		#  preselection cuts for defining different channels contained within single file
+	process=processes("semi_lept")		#  preselection cuts for defining different channels contained within single file
 
 	# some of this crap should go in global dict
-	settings.init(AnalysisName, Energy, luminosity, process, observables, mode='Custom')
+	settings.init(AnalysisName, Energy, luminosity, process, observables, mode='Custom', sys=0.1, calc_s95=True)
 
 	rootDir='.'			# directory of event files
 	args=[]				# [ name, LoadEvents, luminosity, label, type, model, process, observables, plotStyle ]
