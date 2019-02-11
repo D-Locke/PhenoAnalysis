@@ -6,15 +6,15 @@ Proccess: semi_lept
 Beam Energy: 500GeV
 Luminosity: 100fb^-1
 Total CrossSection [fb]: 34.312288
-Process CrossSection[fb]: 34.312288
-MC events in proc: 1000
+Process CrossSection[fb]: 8.40651056
+MC events in proc: 245
 Observables:
            Ejj  EventWeight       Mmiss
 0  163.854792     3.431229  276.304358
 1  147.362559     3.431229  247.439048
-2  259.761037     3.431229  224.081508
-3  269.518157     3.431229  200.928033
-4  131.223491     3.431229  282.037618
+2  131.223491     3.431229  282.037618
+3   96.381120     3.431229  379.633737
+4  115.883514     3.431229  347.403420
 
 eE->WW->mNmjj 
 ===========
@@ -23,15 +23,15 @@ Proccess: semi_lept
 Beam Energy: 500GeV
 Luminosity: 100fb^-1
 Total CrossSection [fb]: 5185.9766
-Process CrossSection[fb]: 5185.9766
-MC events in proc: 1000
+Process CrossSection[fb]: 1203.1465712
+MC events in proc: 232
 Observables:
-           Ejj  EventWeight      Mmiss
-0  408.344754    518.59766  43.859063
-1  246.164804    518.59766  40.141084
-2  489.402657    518.59766   0.064301
-3  296.742947    518.59766   0.024813
-4  494.626692    518.59766   5.351715
+           Ejj  EventWeight       Mmiss
+0  246.164804    518.59766   40.141084
+1  252.425323    518.59766    9.898666
+2  130.997192    518.59766   91.499361
+3  130.308307    518.59766  308.539710
+4  250.741233    518.59766    4.389369
 
 APPLYING CUT 0: 
 **************************
@@ -42,17 +42,17 @@ NoCuts cut	[0,0]
 
 	eE->DDmNmjj
 	-----------------------
-	Xsec [fb] : 34.312288/34.312288
+	Xsec [fb] : 8.40651056/8.40651056
 	Efficiency:  1.0
-	s/b: 3431 / 518597
-	s/b: 0.00661635997355
-	s/sqrt(b): 4.7646872817
+	s/b: 840 / 120314
+	s/b: 0.00698710428241
+	s/sqrt(b): 2.42357516768
 
 
 
 	eE->WW->mNmjj
 	-----------------------
-	Xsec [fb] : 5185.9766/5185.9766
+	Xsec [fb] : 1203.1465712/1203.1465712
 	Efficiency:  1.0
 
 APPLYING CUT 1: 
@@ -64,18 +64,18 @@ Mmiss cut	[170,500]
 
 	eE->DDmNmjj
 	-----------------------
-	Xsec [fb] : 31.979052416/34.312288
-	Efficiency:  0.932
-	s/b: 3197 / 25929
-	s/b: 0.123328949907
-	s/sqrt(b): 19.859362914
+	Xsec [fb] : 8.40651056/8.40651056
+	Efficiency:  1.0
+	s/b: 840 / 15557
+	s/b: 0.0540336064506
+	s/sqrt(b): 6.7396890375
 
 
 
 	eE->WW->mNmjj
 	-----------------------
-	Xsec [fb] : 259.29883/5185.9766
-	Efficiency:  0.05
+	Xsec [fb] : 155.579298/1203.1465712
+	Efficiency:  0.129310344828
 
 APPLYING CUT 2: 
 **************************
@@ -86,18 +86,18 @@ Ejj cut	[0,200]
 
 	eE->DDmNmjj
 	-----------------------
-	Xsec [fb] : 9.641752928/31.979052416
-	Efficiency:  0.301502145923
-	s/b: 964 / 12964
-	s/b: 0.0743678861027
-	s/sqrt(b): 8.46780245152
+	Xsec [fb] : 8.40651056/8.40651056
+	Efficiency:  1.0
+	s/b: 840 / 12964
+	s/b: 0.0648403277408
+	s/sqrt(b): 7.38295943282
 
 
 
 	eE->WW->mNmjj
 	-----------------------
-	Xsec [fb] : 129.649415/259.29883
-	Efficiency:  0.5
+	Xsec [fb] : 129.649415/155.579298
+	Efficiency:  0.833333333333
 
 
 
@@ -105,12 +105,12 @@ Ejj cut	[0,200]
 TOTALS: 
 
 eE->DDmNmjj: 
-	Events: 964.1752928/3431.2288
-	Efficiency:0.281
+	Events: 840.651056/840.651056
+	Efficiency:1.0
 
 eE->WW->mNmjj: 
-	Events: 12964.9415/518597.66
-	Efficiency:0.025
+	Events: 12964.9415/120314.65712
+	Efficiency:0.10775862069
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -120,18 +120,18 @@ eE->WW->mNmjj:
 
 TOTAL SIGNIFICANCES: 
 eE->DDmNmjj: 
-		Signal efficiency: 0.281
-		Total Background efficiency: 0.025
-		s/b: 0.0743678861027
-		s/sqrt(s+b): 8.46780245152
+		Signal efficiency: 1.0
+		Total Background efficiency: 0.10775862069
+		s/b: 0.0648403277408
+		s/sqrt(s+b): 7.38295943282
 
 ############################################################
 
-Finished analysis, see cutNplot for plots and results. Dataframe of observables is stored in /data
 
-From cutNplot/LHE/cutflow_table.dat 
+Summary (see ./cutNplot/LHE/cutflow_table.dat) 
 =======================
-      Cut  Lower  Upper  eE->DDmNmjj  Total BG (IDM)  S/B (IDM)  S/sqrt(B) (IDM)    S95 (IDM)    r (IDM)  eE->WW->mNmjj 
-0  NoCuts      0      0  3431.228800     518597.6600   0.006616         4.764687  1386.713925   2.474360     518597.6600
-1   Mmiss    170    500  3197.905242      25929.8830   0.123329        19.859363   317.550684  10.070535      25929.8830
-2     Ejj      0    200   964.175293      12964.9415   0.074368         8.467802   217.800794   4.426868      12964.9415
+      Cut  Lower  Upper  eE->DDmNmjj  Total BG (IDM)  S/B (IDM)  S/sqrt(B) (IDM)  eE->WW->mNmjj 
+0  NoCuts      0      0   840.651056    120314.65712   0.006987         2.423575    120314.65712
+1   Mmiss    170    500   840.651056     15557.92980   0.054034         6.739689     15557.92980
+2     Ejj      0    200   840.651056     12964.94150   0.064840         7.382959     12964.94150
+Finished analysis, see cutNplot for plots and results. Dataframe of observables is stored in /data

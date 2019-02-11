@@ -199,20 +199,20 @@ def calc_obs(Energy,obsName,event,process):
 	# LHE VERSIONS FOR MWTC STUDY
 	elif obsName=="Nj": 
 		return len(event.Jet)
-	elif obsName=="PTj1": 
-		return event.Jet[0].pt
+	elif obsName=="PTj1":
+		return event.Jet[0].PT
 	elif obsName=="PTj2": 
-		return event.Jet[1].pt
+		return event.Jet[1].PT
 	elif obsName=="deltaEta":
-		return abs( event.TaggedJet[0].eta - event.TaggedJet[1].eta )
+		return abs( event.TaggedJet[0].Eta - event.TaggedJet[1].Eta )
 	elif obsName=="PTWp":
-		return event.getParticlesByIDs([24])[0].pt
+		return event.getParticlesByIDs([24])[0].PT
 	elif obsName=="EtaWp":
-		return event.getParticlesByIDs([24])[0].eta
+		return event.getParticlesByIDs([24])[0].Eta
 	elif obsName=="PTWm":
-		return event.getParticlesByIDs([-24])[0].pt
+		return event.getParticlesByIDs([-24])[0].PT
 	elif obsName=="EtaWm":
-		return event.getParticlesByIDs([-24])[0].eta
+		return event.getParticlesByIDs([-24])[0].Eta
 	elif obsName=="PT_WW": 
 		return PT(event.Ws)
 	elif obsName=="PT_jj": 
@@ -222,13 +222,13 @@ def calc_obs(Energy,obsName,event,process):
 	elif obsName=="MWWj1j2":
 		return M(event.Ws+event.Jet)
 	elif obsName=="Ej1":
-		return event.Jet[0].energy
+		return event.Jet[0].E
 	elif obsName=="Ej2":
-		return event.Jet[1].energy
+		return event.Jet[1].E
 	elif obsName=="eta_j1":
-		return event.Jet[0].eta
+		return event.Jet[0].Eta
 	elif obsName=="eta_j2":
-		return event.Jet[1].eta
+		return event.Jet[1].Eta
 
 
 

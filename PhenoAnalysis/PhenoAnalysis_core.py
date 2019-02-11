@@ -307,6 +307,14 @@ def cutNplot(objects, cuts,plots,**kwargs):
 
     printInfo(decEvents,objects)
 
+    # parse cutflow table to html
+    tablefiledat = './cutNplot/{}/cutflow_table.dat'.format(objects[0].filetype)
+    results=pd.read_csv(tablefiledat,sep='\t')
+    results.to_html(tablefiledat[:-4]+'.html', float_format=lambda x: '%.2E' % x)
+
+    print '\nSummary (see {}) \n======================='.format(tablefiledat)
+    print results
+
 
 
 def printInfo(decEvents,objects):

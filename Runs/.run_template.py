@@ -11,7 +11,7 @@ class processes:
 		self.proc_label=proc_label
 
 	def hadronic(self,event):
-		if len(event.Jet) == 4:
+		if event.Jet.GetEntries() == 4:
 			return True
 		return False
 
@@ -27,7 +27,7 @@ class processes:
 		return 0
 
 	def selection(self,event):
-		return getattr(self, self.proc_label)
+		return getattr(self, self.proc_label)(event)
 
 if __name__ == '__main__':
 	AnalysisName = "example1_tests"
@@ -39,7 +39,7 @@ if __name__ == '__main__':
 	process=processes("hadronic")		#  preselection cuts for defining different channels contained within single file
 
 	# some of this crap should go in global dict
-	settings.init(AnalysisName, Energy, luminosity, process, observables, mode='Custom')
+	settings.init(AnalysisName, Energy, luminosity, process, observables, mode='Custom', BGsys=0.0, calc_s95=True)
 
 	rootDir='.'			# directory of event files
 	args=[]				# [ name, LoadEvents, luminosity, label, type, model, process, observables, plotStyle ]
@@ -63,10 +63,3 @@ if __name__ == '__main__':
 	cornerPlot(objects, vars=observables, saveas="cornerPlot_allCuts.png")
 
 	print "Finished analysis, see cutNplot for plots and results. Dataframe of observables is stored in /data"
-
-	# parse cutflow table to html
-	results=pd.read_csv('cutNplot/LHE/cutflow_table.dat',sep='\t')
-	results.to_html('cutNplot/LHE/cutflow_table.html', float_format=lambda x: '%.2E' % x)
-
-	print '\nFrom cutNplot/LHE/cutflow_table.dat \n======================='
-	print results

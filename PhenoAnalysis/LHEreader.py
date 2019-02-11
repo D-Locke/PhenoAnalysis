@@ -19,11 +19,11 @@ from observables_custom import calc_obs
 class Particle:
     def __init__(self,pdgid,spin,px=0,py=0,pz=0,energy=0,mass=0):
         self.pdgid=pdgid
-        self.px=px
-        self.py=py
-        self.pz=pz
-        self.energy=energy
-        self.mass=mass
+        self.Px=px
+        self.Py=py
+        self.Pz=pz
+        self.E=energy
+        self.Mass=mass
         self.spin=spin
         # also add charge to allow more ROOT like definitions?
 
@@ -31,25 +31,26 @@ class Particle:
         """ What to print when print called on Particle object """
         return ("Particle: {id} with m={mass:.2f}GeV, s={spin}."
                 " P4=({E:.2f},{px:.2f},{py:.2f},{pz:.2f}), PT={pt:.2f}".format(id=self.pdgid,
-                                                               mass=self.mass,
+                                                               mass=self.Mass,
                                                                spin=self.spin,
-                                                               E=self.energy,
-                                                               px=self.px,
-                                                               py=self.py,
-                                                               pz=self.px,
-                                                               pt=self.pt))
+                                                               E=self.E,
+                                                               px=self.Px,
+                                                               py=self.Py,
+                                                               pz=self.Px,
+                                                               pt=self.PT))
         #return self.energy, self.px, self.py, self.pz
 
     def __lt__(self, other):
         # for quick ordering jets from high to low PT
-        return self.pt < other.pt
+        return self.PT < other.PT
 
+    # to make similar to Delphes ROOT defs
     def P4(self):
         return self.p4
 
     @property
     def p4(self):
-        return ROOT.TLorentzVector(self.px,self.py,self.pz,self.energy)
+        return ROOT.TLorentzVector(self.Px,self.Py,self.Pz,self.E)
     
     @p4.setter
     def p4(self,value):
@@ -60,16 +61,17 @@ class Particle:
         self.mass=value.M()
     
     @property
-    def p(self):
+    def P(self):
         return self.p4.P()
     
     @property
-    def eta(self):
+    def Eta(self):
         return self.p4.Eta()
     
     @property
-    def pt(self):
+    def PT(self):
         return self.p4.Pt()
+
 
 class partList(list):
     """ wrapper for list objects to make analogous to ROOT TClonesArray """
@@ -238,7 +240,7 @@ def readLHE(args):
                     event.Wm= event.getParticlesByIDs(-24)
                     # event.e= event.getParticlesByIDs([11,-11])
                     # MWTC - add "TaggedJets" which correspond to VBF jets
-                    event.TaggedJet = sorted(event.Jet, key=lambda x: abs(x.eta), reverse=True)[:2]
+                    event.TaggedJet = sorted(event.Jet, key=lambda x: abs(x.Eta), reverse=True)[:2]
 
                     process.preselection(event)
                     if process.selection(event): 

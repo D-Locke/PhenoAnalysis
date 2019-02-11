@@ -55,3 +55,5 @@ Python2.x, ROOT6.x, pyROOT, libDelphes, pandas, numpy, matplotlib, seaborn
 ## Useful docs
 * TLorentzVector: https://root.cern.ch/doc/master/classTLorentzVector.html
 * Delphes tree description: https://cp3.irmp.ucl.ac.be/projects/delphes/wiki/WorkBook/RootTreeDescription
+* Delphes classes header found in DELPHES_BUILD_LOC/doc/classes/DelphesClasses.h
+

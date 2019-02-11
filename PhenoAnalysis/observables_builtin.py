@@ -28,6 +28,8 @@ def branchName(name):
 		return "Jet"
 	if name=="m" or name=="M":
 		return "Muon"
+	if name=="e" or name=="E":
+		return "Electron"
 	if name=="W+":
 		return "Wp"
 	if name=="W-":

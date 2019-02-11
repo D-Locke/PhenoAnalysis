@@ -11,23 +11,9 @@ class processes:
 		self.proc_label=proc_label
 
 	def semi_lept(self,event):
-		""" for final states containing 1 muon and a dijet"""
-		if len(event.Muon)== 1 and len(event.Jet) == 2:# or (event.Jet.GetEntries() > process["Njets"] and event.Jet.At(2).P4().Pt()<10): # allow soft jets
+		if event.Jet.GetEntries() == 2 and event.Muon.GetEntries() == 1:
 			return True
 		return False
-
-	def lept(self,event):
-		""" for final states containing 2 muons """		
-		if len(event.Muon) == 2 and len(event.Jet) == 0:
-			if event.Muon.At(0).Charge == -1*event.Muon.At(1).Charge:
-				return True
-		return False
-
-	def hadr(self,event):
-		if len(event.Muon) == 0 and len(event.Jet) == 4:
-			return True
-		return False
-
 
 	def preselection(self,event):
 		""" see definitions in PhenoAnalysis/preselection.py """
@@ -40,7 +26,7 @@ class processes:
 		return 0
 
 	def selection(self,event):
-		return getattr(self, self.proc_label)
+		return getattr(self, self.proc_label)(event)
 
 if __name__ == '__main__':
 	AnalysisName = "example1_tests"
@@ -52,7 +38,7 @@ if __name__ == '__main__':
 	process=processes("semi_lept")		#  preselection cuts for defining different channels contained within single file
 
 	# some of this crap should go in global dict
-	settings.init(AnalysisName, Energy, luminosity, process, observables, mode='Custom', BGsys=0.1, calc_s95=True)
+	settings.init(AnalysisName, Energy, luminosity, process, observables, mode='Custom', BGsys=0.1, calc_s95=False)
 
 	rootDir='.'			# directory of event files
 	args=[]				# [ name, LoadEvents, luminosity, label, type, model, process, observables, plotStyle ]
@@ -77,9 +63,3 @@ if __name__ == '__main__':
 	cornerPlot(objects, vars=observables, saveas="cornerPlot_allCuts.png")
 
 	print "Finished analysis, see cutNplot for plots and results. Dataframe of observables is stored in /data"
-
-	results=pd.read_csv('cutNplot/LHE/cutflow_table.dat',sep='\t')
-	results.to_html('cutNplot/LHE/cutflow_table.html', float_format=lambda x: '%.2E' % x)
-
-	print '\nFrom cutNplot/LHE/cutflow_table.dat \n======================='
-	print results

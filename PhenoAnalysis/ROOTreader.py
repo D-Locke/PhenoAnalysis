@@ -23,6 +23,12 @@ def PrintEvent(event):
     for i,track in enumerate(event.Track):
         print "Track {}: {},{}".format(i,jet.P4().E(), jet.Charge)
 
+def datExists(obj, LoadEvents):
+    for f in os.listdir('./data/'):
+        if f.startswith(obj.flabel+'_') and f.endswith('_obs_'+str(obj.filetype)+'.dat.gz'):
+            if [int(s) for s in f.split('_') if s.isdigit()][0] >= LoadEvents:
+                return True       
+    return False
 
 
 def readROOT(args):
@@ -39,6 +45,7 @@ def readROOT(args):
     
     myfile=ROOT.TFile(filename)
     mytree=myfile.Delphes
+
     # WHAT ABOUT ADDING CUSTOM BRANCHES OR ENTIRELY CUSTOM TREE DEF? 
     # https://root-forum.cern.ch/t/pyroot-adding-a-branch-to-a-tree/2918/2
     # https://root.cern.ch/gitweb/?p=root.git;a=blob;f=tutorials/pyroot/staff.py;h=d955e2ca7481a9a507cb40dbb71c2f85ac12bbbc;hb=HEAD
