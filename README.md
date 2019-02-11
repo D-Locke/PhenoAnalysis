@@ -5,12 +5,12 @@ in dataframe. Uses DELPHES output tree descriptions. Currently will streamline c
 Reading of files is done in parallel, using multiprocessing module.
 
 ## Requirements:
-Python2.x, ROOT6.x, pyROOT, libDelphes, pandas, numpy, matplotlib
+Python2.x, ROOT6.x, pyROOT, libDelphes, pandas, numpy, matplotlib, seaborn
 
 ### Installation:
 1. Install python modules (pandas,numpy,matplotlib)
-...```pip install numpy pandas matplotlib```
-2. Install ROOT, as described here: https://root.cern.ch/pyroot
+...```pip install numpy pandas matplotlib seaborn```
+2. Install ROOT, as described here: https://root.cern.ch/pyroot and place libPyROOT.so in PYTHONPATH/LD_LIBRARY_PATH
 3. Build Delphes 3.x and place dir containing libDelphes.so in LD_LIBRARY_PATH (or place in e.g ~Packages/root/build/lib/root/)
 4. Make sure root is sourced, and libDelphes.so can be found
 ...```python -c "import ROOT"```
@@ -28,6 +28,8 @@ Python2.x, ROOT6.x, pyROOT, libDelphes, pandas, numpy, matplotlib
 * apply user supplied cut-flow
 * plot histograms and 2D dalitz plots for all observable combinations
 * Will store computed dataframes to improve speed next time doing cuts/plots
+* plot seaborn corner plot for quick 1 page view of distributions and correlations
+* calculate r-value using CLs method
 
 ### Added:
 * combined ROOT and LHE codes, made shared modules
@@ -35,6 +37,8 @@ Python2.x, ROOT6.x, pyROOT, libDelphes, pandas, numpy, matplotlib
 * parallelize object initialization
 
 ### Future:
+* add unit testing
+* improve preselection cuts to include cuts on user-supplied observables
 * use of multiple signal event files (like background)
 * avoid having to edit core code for new processes, observables etc.
 * add pdf report generation, with cut-flow tables

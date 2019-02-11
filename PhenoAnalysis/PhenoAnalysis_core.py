@@ -187,8 +187,8 @@ def printCutRow(objects, observable, limits):
                 else:
                     SoverB, Signif = -1, -1
                 if settings.globDict['calc_s95']:
-                    S95 = s95.find_s95_exp(totBG,totBG,settings.globDict['sys'])
-                    r = obj.Nevents/S95 #(S-1.64*DeltaS)/S95
+                    S95 = s95.find_s95_exp(totBG,totBG,settings.globDict['BGsys']*totBG)
+                    r = (obj.Nevents-1.64*settings.globDict['SIGsys']*obj.Nevents)/S95 #(S-1.64*DeltaS)/S95
                     f.write('\t{}\t{}\t{}\t{}\t{}'.format(totBG,SoverB,Signif, S95, r))
                 else:
                     f.write('\t{}\t{}\t{}'.format(totBG,SoverB,Signif))
