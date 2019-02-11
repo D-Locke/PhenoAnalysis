@@ -58,7 +58,7 @@ if __name__ == '__main__':
 	args=[]				# [ name, LoadEvents, luminosity, label, type, model, process, observables, plotStyle ]
 
 	# signals - here is Inert Doublet Model, e+e- -> DD,4*x where x is quark, muon or neutrino
-	args.append([rootDir+'/IDM_signal.lhe', LoadEvents, "eE->DDmNmjj","signal","IDM",{'linestyle': 'dashed','color':'green'},recalc])
+	args.append([rootDir+'/IDM_signal.lhe.gz', LoadEvents, "eE->DDmNmjj","signal","IDM",{'linestyle': 'dashed','color':'green'},recalc])
 
 	#backgrounds - here SM background e+e- -> 4*x
 	args.append([rootDir+'/SM_viaWW.lhe', LoadEvents, "eE->WW->mNmjj","background","SM",{'linestyle': 'solid','color':'red'},recalc])
