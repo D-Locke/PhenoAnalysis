@@ -1,6 +1,8 @@
 NOTES
 *.pyc
 Runs/*
+!Runs/newProject
+!Runs/.run_template.py
 !Runs/example1
 Runs/example1/cutNplot/LHE/Plots/*.pdf
 Runs/example1/cutNplot/LHE/Plots/dat/*.dat

@@ -10,21 +10,8 @@ class processes:
 	def __init__(self,proc_label):
 		self.proc_label=proc_label
 
-	def semi_lept(self,event):
-		""" for final states containing 1 muon and a dijet"""
-		if len(event.Muon)== 1 and len(event.Jet) == 2:# or (event.Jet.GetEntries() > process["Njets"] and event.Jet.At(2).P4().Pt()<10): # allow soft jets
-			return True
-		return False
-
-	def lept(self,event):
-		""" for final states containing 2 muons """		
-		if len(event.Muon) == 2 and len(event.Jet) == 0:
-			if event.Muon.At(0).Charge == -1*event.Muon.At(1).Charge:
-				return True
-		return False
-
-	def hadr(self,event):
-		if len(event.Muon) == 0 and len(event.Jet) == 4:
+	def hadronic(self,event):
+		if len(event.Jet) == 4:
 			return True
 		return False
 
@@ -48,8 +35,8 @@ if __name__ == '__main__':
 	luminosity=100								# fb^-1
 	LoadEvents=1000 								# how many events to load? For testing on large files
 	recalc=True									# if dataframe of observables already stored, recalculate and overwrite if True.
-	observables=["Mmiss","Ejj"]			# which observables to compute, store and plot - check they are defined in observables.py
-	process=processes("semi-lept")		#  preselection cuts for defining different channels contained within single file
+	observables=["PTj1","Mjj","Ejj"]			# which observables to compute, store and plot - check they are defined in observables.py
+	process=processes("hadronic")		#  preselection cuts for defining different channels contained within single file
 
 	# some of this crap should go in global dict
 	settings.init(AnalysisName, Energy, luminosity, process, observables, mode='Custom')
@@ -58,26 +45,26 @@ if __name__ == '__main__':
 	args=[]				# [ name, LoadEvents, luminosity, label, type, model, process, observables, plotStyle ]
 
 	# signals - here is Inert Doublet Model, e+e- -> DD,4*x where x is quark, muon or neutrino
-	args.append([rootDir+'/IDM_signal.lhe', LoadEvents, "eE->DDmNmjj","signal","IDM",{'linestyle': 'dashed','color':'green'},recalc])
+	args.append([rootDir+'/SIGNALEVENTS.lhe', LoadEvents, "eE->DDmNmjj","signal","BSM_MODEL_NAME",{'linestyle': 'dashed','color':'green'},recalc])
 
 	#backgrounds - here SM background e+e- -> 4*x
-	args.append([rootDir+'/SM_viaWW.lhe', LoadEvents, "eE->WW->mNmjj","background","SM",{'linestyle': 'solid','color':'red'},recalc])
+	args.append([rootDir+'/BGEVENTS.lhe', LoadEvents, "eE->WW->mNmjj","background","SM",{'linestyle': 'solid','color':'red'},recalc])
 
 	objects = parallel_readLHE(args)		# parse root files in parallel
 
 	# define cuts here
 	cuts=collections.OrderedDict()
-	cuts['Mmiss']=[170,500]
 	cuts['Ejj']=[0,200]
 
 	# define plots
-	plots=[{"label":"Mmiss","binning": 30,"yscale":"log"},
+	plots=[{"label":"PTj1","binning": 30,"yscale":"log"},
 		{"label":"Ejj","binning": 30,"yscale":"log"}]
 	cutNplot(objects,cuts,plots,PlotCuts=True,Dalitz=False)	# will apply cuts in order, print results and calculate 1D and 2D histograms of all observables
 	cornerPlot(objects, vars=observables, saveas="cornerPlot_allCuts.png")
 
 	print "Finished analysis, see cutNplot for plots and results. Dataframe of observables is stored in /data"
 
+	# parse cutflow table to html
 	results=pd.read_csv('cutNplot/LHE/cutflow_table.dat',sep='\t')
 	results.to_html('cutNplot/LHE/cutflow_table.html', float_format=lambda x: '%.2E' % x)
 

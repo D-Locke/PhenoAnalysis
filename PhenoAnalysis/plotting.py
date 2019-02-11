@@ -318,7 +318,7 @@ def cornerPlot(objects, vars, saveas):
         obj.obs['label'] = obj.label
     df = pd.concat([obj.obs for obj in objects])
 
-    g = sns.PairGrid(df,vars=vars,hue='label',diag_sharey=False, size=2.0, aspect=1)  
+    g = sns.PairGrid(df,vars=vars,hue='label',diag_sharey=False, height=2.0, aspect=1)  
     #g.map_upper()#plt.scatter)
     g.map_lower(plt.scatter, s=4, alpha=0.5)
     g.map_diag(sns.distplot, norm_hist=True,kde=False,rug=True)# weighted_hist, df['EventWeight'])

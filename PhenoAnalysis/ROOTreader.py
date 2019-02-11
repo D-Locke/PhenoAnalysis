@@ -84,6 +84,7 @@ def readROOT(args):
                 #PrintEvent(event)
                 #branches=[event.Jet.At(0),event.Jet.At(1),event.Muon.At(0)] # this should be changed depending on process
                 
+                # CHECK BELOW WEIGHT IS CORRECT
                 observ = { 'EventWeight' : event.Event.At(0).Weight*luminosity*1000/LoadEvents }
                 for obs in observables:
                     if mode=="Custom":
