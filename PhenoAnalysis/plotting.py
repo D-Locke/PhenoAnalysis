@@ -158,7 +158,7 @@ def shadeCut(plot,cuts,ax):
 def annotateHist(objects,ax):
     """ Just adds luminosity info atm """
     props = dict(facecolor='white', alpha=1.0,pad=3.0)
-    textstr="{}\n$\mathcal{{L}}_{{int}}={:.0f} fb^{{-1}}$".format("Onshell (BP1)",objects[0].luminosity)
+    textstr="{}\n$\mathcal{{L}}_{{int}}={:.0f} fb^{{-1}}$".format(settings.globDict['AnalysisName'],settings.globDict['Lumi'])
     #textstr="$\mathcal{{L}}_{{int}}={:.0f} fb^{{-1}}$".format(objects[0].luminosity)
     #textstr="$\mathcal{{L}}_{{int}}={:.0f} fb^{{-1}}$".format(objects[0].luminosity)
     ax.text(0.02, 0.97, textstr, transform=ax.transAxes, fontsize=9,
