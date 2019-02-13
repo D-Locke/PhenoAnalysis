@@ -38,7 +38,7 @@ if __name__ == '__main__':
 	process=processes("semi_lept")		#  preselection cuts for defining different channels contained within single file
 
 	# some of this crap should go in global dict
-	settings.init(AnalysisName, Energy, luminosity, process, observables, mode='Custom', BGsys=0.1, calc_s95=False)
+	settings.init(AnalysisName, Energy, luminosity, process, observables, mode='Custom', BGsys=0.1, calc_s95=True)
 
 	rootDir='.'			# directory of event files
 	args=[]				# [ name, LoadEvents, luminosity, label, type, model, process, observables, plotStyle ]

@@ -136,7 +136,7 @@ class Logger:
 
 def parallel_readROOT(args):
     """parallelizes reading of .root and storage of observables dataframe"""
-    sys.stdout = Logger("./cutNplot/ROOT/RUN_INFO.log")
+    sys.stdout = Logger("./Plots/ROOT_RUN_INFO.log")
     p = multiprocessing.Pool()
     objects = p.map(readROOT, args)
     p.close()
@@ -150,7 +150,7 @@ def parallel_readROOT(args):
 
 def parallel_readLHE(args):
     """parallelizes reading of .root and storage of observables dataframe"""
-    sys.stdout = Logger("./cutNplot/LHE/RUN_INFO.log")
+    sys.stdout = Logger("./Plots/LHE_RUN_INFO.log")
     p = multiprocessing.Pool()
     objects = p.map(readLHE, args)
     p.close()
@@ -161,7 +161,7 @@ def parallel_readLHE(args):
 
 def printCutHeader(objects):
     """ produce latex tables with pandas df.to_latex()!!"""
-    tablefiledat = './cutNplot/{}/cutflow_table.dat'.format(objects[0].filetype)
+    tablefiledat = './Plots/{}_cutflow_table.dat'.format(objects[0].filetype)
     with open(tablefiledat, 'w') as f:
         f.write('Cut\tLower\tUpper')
         for obj in objects:
@@ -174,7 +174,7 @@ def printCutHeader(objects):
         f.write(' \n')
 
 def printCutRow(objects, observable, limits):
-    tablefiledat = './cutNplot/{}/cutflow_table.dat'.format(objects[0].filetype)
+    tablefiledat = './Plots/{}_cutflow_table.dat'.format(objects[0].filetype)
     with open(tablefiledat, 'a') as f:
         f.write('{}\t{}\t{}'.format(observable,limits[0],limits[1]))
         for obj in objects:
@@ -309,7 +309,7 @@ def cutNplot(objects, cuts,plots,**kwargs):
     printInfo(decEvents,objects)
 
     # parse cutflow table to html
-    tablefiledat = './cutNplot/{}/cutflow_table.dat'.format(objects[0].filetype)
+    tablefiledat = './Plots/{}_cutflow_table.dat'.format(objects[0].filetype)
     results=pd.read_csv(tablefiledat,sep='\t')
     results.to_html(tablefiledat[:-4]+'.html', float_format=lambda x: '%.2E' % x)
 

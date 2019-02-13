@@ -2,8 +2,8 @@ import sys
 import os.path
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), os.path.pardir,os.path.pardir)))
 import collections
-from PhenoAnalysis import *
-from PhenoAnalysis import settings
+from Modules import *
+from Modules import settings
 
 class processes:
 	"""These should be defined for each analysis - preselection cuts to select 'channels'"""
@@ -17,7 +17,7 @@ class processes:
 
 
 	def preselection(self,event):
-		""" see definitions in PhenoAnalysis/preselection.py """
+		""" see definitions in Modules/preselection.py """
 		#filterPhaseSpace(event.Electron, 20, -2.47, 2.47)
 		#filterPhaseSpace(event.Muon, 20, -3.0, 3.0)
 		#filterPhaseSpace(event.Jet, 20, -3.0, 3.0)

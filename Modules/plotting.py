@@ -9,6 +9,7 @@ import pandas as pd
 import math
 import seaborn as sns
 from numpy import triu_indices_from, tril_indices_from
+import settings
 
 def getLabel(observable):
     plotLabel={}
@@ -158,7 +159,11 @@ def shadeCut(plot,cuts,ax):
 def annotateHist(objects,ax):
     """ Just adds luminosity info atm """
     props = dict(facecolor='white', alpha=1.0,pad=3.0)
+<<<<<<< HEAD:PhenoAnalysis/plotting.py
     textstr="{}\n$\mathcal{{L}}_{{int}}={:.0f} fb^{{-1}}$".format(settings.globDict['AnalysisName'],settings.globDict['Lumi'])
+=======
+    textstr="{}\n$\mathcal{{L}}_{{int}}={:.0f} fb^{{-1}}$".format(settings.globDict["AnalysisName"],settings.globDict["Lumi"])
+>>>>>>> d3d94c39148707c75f76c3b77d6086ad55cbed7e:Modules/plotting.py
     #textstr="$\mathcal{{L}}_{{int}}={:.0f} fb^{{-1}}$".format(objects[0].luminosity)
     #textstr="$\mathcal{{L}}_{{int}}={:.0f} fb^{{-1}}$".format(objects[0].luminosity)
     ax.text(0.02, 0.97, textstr, transform=ax.transAxes, fontsize=9,
@@ -190,9 +195,9 @@ def HistPlot(objects, plots, cutlabel,**kwargs):
         for obj in objects:
             if np.size(plot["binning"])==1:
                 if 'range' in plot:
-                    hists[obj.flabel] = ax1.hist(obj.obs[x], bins=plot["binning"],range=getRange(x),weights=obj.obs['EventWeight'], label=obj.label, histtype = 'step', linestyle=obj.plotStyle['linestyle'],color=obj.plotStyle['color'])
+                    hists[obj.flabel] = ax1.hist(obj.obs[x], bins=plot["binning"],range=plot["range"],weights=obj.obs['EventWeight'], label=obj.label, histtype = 'step', linestyle=obj.plotStyle['linestyle'],color=obj.plotStyle['color'])
                     hists_sumW2[obj.flabel] = np.histogram(obj.obs[x], bins=plot["binning"],range=getRange(x),weights=obj.obs['EventWeight']**2)
-                    ax1.set_xlim(getRange(x))
+                    ax1.set_xlim(plot["range"])
                 else: 
                     hists[obj.flabel] = ax1.hist(obj.obs[x], bins=plot["binning"],weights=obj.obs['EventWeight'], label=obj.label, histtype = 'step', linestyle=obj.plotStyle['linestyle'],color=obj.plotStyle['color'])
                     hists_sumW2[obj.flabel] = np.histogram(obj.obs[x], bins=plot["binning"],weights=obj.obs['EventWeight']**2)
@@ -233,8 +238,8 @@ def HistPlot(objects, plots, cutlabel,**kwargs):
             cuts=kwargs.get('cuts',False)
             shadeCut(plot,cuts,ax1)
 
-        fig.savefig('./cutNplot/'+str(objects[0].filetype)+'/Plots/'+str(objects[0].filetype)+'_plot_'+x+'_'+cutlabel+'.pdf')
-        df.to_csv('./cutNplot/'+str(objects[0].filetype)+'/Plots/dat/'+str(objects[0].filetype)+'_plot_'+x+'_'+cutlabel+'.dat', sep='\t', encoding='utf-8')
+        fig.savefig('./Plots/'+str(objects[0].filetype)+'_plot_'+x+'_'+cutlabel+'.pdf')
+        df.to_csv('./Plots/'+str(objects[0].filetype)+'_plot_'+x+'_'+cutlabel+'.dat', sep='\t', encoding='utf-8')
         plt.close(fig)
         #return df
 
@@ -306,7 +311,7 @@ def Dalitz(objects, plots, cutlabel):
 
 
 
-        fig.savefig('./cutNplot/'+str(objects[0].filetype)+'/Dalitz/'+str(objects[0].filetype)+'_Dalitz_'+x+'_'+y+'_'+cutlabel+'.pdf')
+        fig.savefig('Plots/'+str(objects[0].filetype)+'_2D_'+x+'_'+y+'_'+cutlabel+'.pdf')
         plt.close(fig)
 
 def cornerPlot(objects, vars, saveas):
@@ -350,4 +355,4 @@ def cornerPlot(objects, vars, saveas):
 
 
 
-    g.savefig(saveas)
+    g.savefig('Plots/corner_plot.png')
