@@ -14,7 +14,7 @@ Python2.x, ROOT6.x, pyROOT, libDelphes, pandas, numpy, matplotlib, seaborn
 3. Build Delphes 3.x and place dir containing libDelphes.so in LD_LIBRARY_PATH (or place in e.g ~Packages/root/build/lib/root/)
 4. Make sure root is sourced, and libDelphes.so can be found
 ...```python -c "import ROOT"```
-5. If using ROOT6: In PhenoAnalysis/PhenoAnalysis/ROOTreader.py, lines 10,11 - change path to your Delphes dir
+5. If using ROOT6: In PhenoAnalysis/Modules/ROOTreader.py, lines 10,11 - change path to your Delphes dir
 
 ### Adding new analysis:
 1. Specify new observables in observables.py, add plot range and labels in plotting.py
