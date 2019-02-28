@@ -15,14 +15,17 @@ class processes:
 			return True
 		return False
 
+	def mycuts(self,event):
+
+
 	def preselection(self,event):
 		""" see definitions in PhenoAnalysis/preselection.py """
-		#filterPhaseSpace(event.Electron, 20, -2.47, 2.47)
-		#filterPhaseSpace(event.Muon, 20, -3.0, 3.0)
-		#filterPhaseSpace(event.Jet, 20, -3.0, 3.0)
-		#overlapRemoval(event.Jet,event.Electron,0.2)
-		#overlapRemoval_2(event.Electron,event.Jet,0.2,0.4)
-		#overlapRemoval_jm(event.Muon, event.Jet, event.Track,deltaR=0.5,matchingTracks=3)
+		filterPhaseSpace(event.Electron, 20, -2.47, 2.47)
+		filterPhaseSpace(event.Muon, 20, -3.0, 3.0)
+		filterPhaseSpace(event.Jet, 20, -3.0, 3.0)
+		overlapRemoval(event.Jet,event.Electron,0.2)
+		overlapRemoval_2(event.Electron,event.Jet,0.2,0.4)
+		overlapRemoval_jm(event.Muon, event.Jet, event.Track,deltaR=0.5,matchingTracks=3)
 		return 0
 
 	def selection(self,event):

@@ -13,12 +13,14 @@ import settings
 import observables_builtin as obsbi
 from observables_custom import calc_obs
 
+
 """ TODO:
 * Make Jet,Muon etc. classes similar to ROOT?
 """
 class Particle:
     def __init__(self,pdgid,spin,px=0,py=0,pz=0,energy=0,mass=0):
         self.pdgid=pdgid
+        self.PID=pdgid
         self.Px=px
         self.Py=py
         self.Pz=pz
@@ -74,13 +76,20 @@ class Particle:
 
 
 class partList(list):
-    """ wrapper for list objects to make analogous to ROOT TClonesArray """
-    def __init__(self, *args):
-        list.__init__(self, *args)
-        #self.name = 'Muon'
+    """ simpler analog of tclonesarray. Here you can fill by passing kwargs and required value as list"""
+    def __init__(self,*event,**kwargs):
+        """ branch name required for builtin observables """
+        if event:
+            event=event[0]
+            for part in event.Particle:
+                if all(getattr(part,k) in kwargs[k] for k in kwargs):
+                    self.append(part)
+
+    def RecursiveRemove(self,obj):
+        """ to match ROOT function for TClonesArray"""
+        self.remove(obj)
 
     def GetEntries(self):
-        """ ROOTlike """
         return len(self)
 
     def __str__(self):
@@ -92,19 +101,19 @@ class partList(list):
 class Event:
     def __init__(self,num_particles,weight):
         self.num_particles=num_particles    # this is original number, if remove some then use GetEntries to repopulate this?
-        self.particles=partList()
+        self.Particle=partList() # renamed to be consistent with ROOT genParticle branch
         self.weight=weight
         
     
     def __addParticle__(self,particle):
-        self.particles.append(particle)
+        self.Particle.append(particle)
         
     def getParticlesByIDs(self,idlist):
         partlist=partList() # make analogue of TClonesArray with atleast GetEntries()
         if type(idlist) is int:
             idlist=[idlist]
         for pdgid in idlist:
-            for p in self.particles:
+            for p in self.Particle:
                 if p.pdgid==pdgid:
                     partlist.append(p)
         partlist.sort(reverse=True) # sorts in place by PT
@@ -112,8 +121,8 @@ class Event:
 
 
     def __str__(self):
-        string="\nEvent ({} particles) [weight: {:.2e}]\n============\n".format(self.particles.GetEntries(), self.weight)
-        for p in self.particles:
+        string="\nEvent ({} particles) [weight: {:.2e}]\n============\n".format(self.Particle.GetEntries(), self.weight)
+        for p in self.Particle:
             string=string+"\t{}\n".format(p)
         return string
 
@@ -154,6 +163,10 @@ def getEvents(xml_file):
             yield elem
             root.clear() # free memor
 
+
+##################################
+# SHOULD GO IN CLASS DEF FOR USE WITH ROOT
+
 def datExists(obj, LoadEvents):
     for f in os.listdir('./data/'):
         if f.startswith(obj.flabel+'_') and f.endswith('_obs_'+str(obj.filetype)+'.dat.gz'):
@@ -161,12 +174,22 @@ def datExists(obj, LoadEvents):
                 return True       
     return False
 
+def datHasObs(datFilename,observables):
+    header = pd.read_csv(datFilename, compression='gzip',sep='\t', nrows=1).columns.values
+    if sorted(header) == sorted(observables):
+        return True
+    else:
+        print "{} does not contain all observables, recalculating... ".format(datFilename)
+        return False 
+
 def getDatName(obj, LoadEvents):
     for f in os.listdir('./data/'):
         if f.startswith(obj.flabel+'_') and f.endswith('_obs_'+str(obj.filetype)+'.dat.gz'):
             if [int(s) for s in f.split('_') if s.isdigit()][0] >= LoadEvents:
                 return './data/'+f      
     return ''
+
+##########################
 
 def readLHE(args):
     """Will parse root file into ROOTData object"""
@@ -177,6 +200,10 @@ def readLHE(args):
     process = settings.globDict['Procs']
     observables = settings.globDict['ObsNames']
     mode = settings.globDict['mode']
+    parts = settings.globDict['parts']
+
+   
+
 
 
     print "Reading LHE file: "+str(filename)   
@@ -200,12 +227,16 @@ def readLHE(args):
 
     obj = PA.PAData('LHE',numberOfEntries,LoadEvents,luminosity,Energy,label,type,model,process,plotStyle)
 
+    calc=True
     if datExists(obj, LoadEvents) and recalc==False:
         datFilename = getDatName(obj, LoadEvents)
-        obj.readObs(Nrows=LoadEvents,datFilename=datFilename)
-    else:
+        if datHasObs(datFilename, observables):        
+            obj.readObs(Nrows=LoadEvents,datFilename=datFilename)
+            calc=False
+
+    if calc:
         # NEW TESTS##########
-        if mode=="Builtin":
+        if mode=="builtin":
             obsObjs={}
             for obs in observables:
                 obsObjs[obs] = obsbi.Observable(obs)
@@ -219,7 +250,7 @@ def readLHE(args):
                 print ""
                 LoadEvents=numberOfEntries
 
-            for child in islice(getEvents(xml_file),LoadEvents):
+            for child in islice(getEvents(xml_file),LoadEvents):               
                 if(child.tag=='event'):
                     lines=child.text.strip().split('\n')
                     event_header=lines[0].strip()
@@ -233,12 +264,14 @@ def readLHE(args):
                             event.__addParticle__(p)
 
                     # in python these are effectively pointers (i.e not hard copied)
+                    # should just defaulty define those that match ROOT branches, rest will be filled with global partDefs
                     event.Jet  = event.getParticlesByIDs([1,2,3,4,5,-1,-2,-3,-4,-5,21])
                     event.Muon = event.getParticlesByIDs([13,-13])
-                    event.Ws= event.getParticlesByIDs([24,-24])
-                    event.Wp= event.getParticlesByIDs(24)
-                    event.Wm= event.getParticlesByIDs(-24)
-                    # event.e= event.getParticlesByIDs([11,-11])
+                    event.Electron = event.getParticlesByIDs([11,-11])
+
+                    for p in parts:
+                        setattr(event,parts[p].branchName, partList(event, **parts[p].attr))
+
                     # MWTC - add "TaggedJets" which correspond to VBF jets
                     event.TaggedJet = sorted(event.Jet, key=lambda x: abs(x.Eta), reverse=True)[:2]
 
@@ -258,13 +291,12 @@ def readLHE(args):
 
                         for obs in observables:
                         #JET1,JET2,MUON = partList
-                            if mode=="Custom":
+                            if mode=="custom":
                                 observ[obs] = calc_obs(Energy,obs,event,process.proc_label)
-                            if mode=="Builtin":
+                            if mode=="builtin":
                                 observ[obs] = obsObjs[obs].calc(event)                
                         obj.obs=obj.obs.append(observ, ignore_index=True)
-
              
             obj.saveObs()
-    print obj
+    # print obj
     return obj

@@ -1,4 +1,5 @@
 import KinFuncs
+import settings
 
 """
 In future create obsevable class, should contain:
@@ -30,10 +31,12 @@ def branchName(name):
 		return "Muon"
 	if name=="e" or name=="E":
 		return "Electron"
-	if name=="W+":
-		return "Wp"
-	if name=="W-":
-		return "Wm"
+	else:
+		parts = settings.globDict['parts']
+		if name in parts:
+			return parts[name].branchName
+		else:
+			return name
 
 class Observable:
 	""" Observables - should also add plotting info as kwargs """

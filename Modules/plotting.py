@@ -159,11 +159,7 @@ def shadeCut(plot,cuts,ax):
 def annotateHist(objects,ax):
     """ Just adds luminosity info atm """
     props = dict(facecolor='white', alpha=1.0,pad=3.0)
-<<<<<<< HEAD:PhenoAnalysis/plotting.py
-    textstr="{}\n$\mathcal{{L}}_{{int}}={:.0f} fb^{{-1}}$".format(settings.globDict['AnalysisName'],settings.globDict['Lumi'])
-=======
     textstr="{}\n$\mathcal{{L}}_{{int}}={:.0f} fb^{{-1}}$".format(settings.globDict["AnalysisName"],settings.globDict["Lumi"])
->>>>>>> d3d94c39148707c75f76c3b77d6086ad55cbed7e:Modules/plotting.py
     #textstr="$\mathcal{{L}}_{{int}}={:.0f} fb^{{-1}}$".format(objects[0].luminosity)
     #textstr="$\mathcal{{L}}_{{int}}={:.0f} fb^{{-1}}$".format(objects[0].luminosity)
     ax.text(0.02, 0.97, textstr, transform=ax.transAxes, fontsize=9,
@@ -355,4 +351,4 @@ def cornerPlot(objects, vars, saveas):
 
 
 
-    g.savefig('Plots/corner_plot.png')
+    g.savefig('Plots/{}'.format(saveas))

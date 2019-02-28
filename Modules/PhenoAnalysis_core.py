@@ -12,6 +12,8 @@ import settings
 import copy
 import get_s95 as s95
 
+
+
 """
 class RunInfo:
 Should contain:
@@ -134,6 +136,11 @@ class Logger:
         #you might want to specify some extra behavior here.
         pass    
 
+def PA_run():
+    """ generalise parallel_readX """
+    # https://stackoverflow.com/questions/13944959/dynamic-refresh-printing-of-multiprocessing-or-multithreading-in-python/13946863#13946863
+    return True
+
 def parallel_readROOT(args):
     """parallelizes reading of .root and storage of observables dataframe"""
     sys.stdout = Logger("./Plots/ROOT_RUN_INFO.log")
@@ -147,6 +154,7 @@ def parallel_readROOT(args):
 
 # def parallel_readLHE(args):
 #     return [readLHE(args[0]),readLHE(args[1])]
+
 
 def parallel_readLHE(args):
     """parallelizes reading of .root and storage of observables dataframe"""

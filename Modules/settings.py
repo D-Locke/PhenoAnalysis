@@ -7,9 +7,10 @@ def init(AnalysisName, Energy, Lumi, Procs, ObsNames, mode, **kwargs):
 				'Lumi': Lumi,
 				'Procs': Procs,
 				'ObsNames': ObsNames,
-				'mode': mode, # Custom or Builtin
+				'mode': mode.lower(), # Custom or Builtin
 				'BGsys' : kwargs.get('BGsys',0.0),
 				'SIGsys' : kwargs.get('SIGsys',0.0),
-				'calc_s95' : kwargs.get('calc_s95',False)
+				'calc_s95' : kwargs.get('calc_s95',False),
+				'parts' : kwargs.get('parts',{})
 				}
 

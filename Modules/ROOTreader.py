@@ -6,10 +6,8 @@ from math import sqrt
 from itertools import islice
 import PhenoAnalysis_core as PA
 pd.set_option('display.expand_frame_repr', False)
-ROOT.gROOT.ProcessLine('.include /home/belyaev/packages-local/DELPHES/Delphes-3.4.0/')
-ROOT.gROOT.ProcessLine('.include /home/belyaev/packages-local/DELPHES/Delphes-3.4.0/external')
-#ROOT.gROOT.ProcessLine('.include /home/dan/DELPHES/Delphes-3.4.1/')
-#ROOT.gROOT.ProcessLine('.include /home/dan/DELPHES/Delphes-3.4.1/external')
+ROOT.gROOT.ProcessLine('.include {}'.format(os.environ['DELPHES']))
+ROOT.gROOT.ProcessLine('.include {}/external'.format(os.environ['DELPHES']))
 ROOT.gSystem.Load('libDelphes')
 import settings
 import observables_builtin as obsbi
@@ -33,6 +31,22 @@ def datExists(obj, LoadEvents):
     return False
 
 
+class partList(list):
+    """ simpler analog of tclonesarray. Here you can fill by passing kwargs and required value as list"""
+    def __init__(self,event,**kwargs):
+        """ branch name required for builtin observables """
+        for part in event.Particle:
+            if all(getattr(part,k) in kwargs[k] for k in kwargs):
+                self.append(part)
+
+    def RecursiveRemove(self,obj):
+        """ to match ROOT function for TClonesArray"""
+        self.remove(obj)
+
+    def GetEntries(self):
+        return len(self)
+
+
 def readROOT(args):
     """Will parse root file into ROOTData object"""
     filename,LoadEvents,label,type,model,plotStyle,recalc = args
@@ -42,6 +56,7 @@ def readROOT(args):
     process = settings.globDict['Procs']
     observables = settings.globDict['ObsNames']
     mode = settings.globDict['mode']
+    parts = settings.globDict['parts']
 
     print "Reading ROOT file: "+str(filename)
     
@@ -61,6 +76,7 @@ def readROOT(args):
         print ""
         LoadEvents=numberOfEntries
 
+
     obj = PA.PAData('ROOT',numberOfEntries,LoadEvents,luminosity,Energy,label,type,model,process,plotStyle)
     # modify below to check dataframe.keys() contains all observables required, ifnot then compute just that column and append.
     if datExists(obj, LoadEvents) and recalc==False:
@@ -68,7 +84,7 @@ def readROOT(args):
         datFilename = getDatName(obj, LoadEvents)
         obj.readObs(Nrows=LoadEvents,datFilename=datFilename)
     else:
-        if mode=="Builtin":
+        if mode=="builtin":
             # NEW TESTS##########
             obsObjs={}
             for obs in observables:
@@ -77,6 +93,12 @@ def readROOT(args):
 
         for event in islice(mytree,LoadEvents): 
             #event.Jet=event.GenJet  #test these events with no detector smearing of particles
+            
+            for p in parts:
+                """ define new particles from partDefs """
+                setattr(event,parts[p].branchName, partList(event, **parts[p].attr))           
+ 
+
             process.preselection(event)
             if process.selection(event):
                 #print event.Muon[0].IsolationVar
@@ -96,9 +118,9 @@ def readROOT(args):
                 # CHECK BELOW WEIGHT IS CORRECT
                 observ = { 'EventWeight' : event.Event.At(0).Weight*luminosity*1000/LoadEvents }
                 for obs in observables:
-                    if mode=="Custom":
+                    if mode=="custom":
                         observ[obs] = calc_obs(Energy,obs,event,process.proc_label)
-                    if mode=="Builtin":       
+                    if mode=="builtin":       
                         observ[obs] = obsObjs[obs].calc(event)  
             
                     obj.obs=obj.obs.append(observ, ignore_index=True)

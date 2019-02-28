@@ -2,8 +2,7 @@ import sys
 import os.path
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), os.path.pardir,os.path.pardir)))
 import collections
-from PhenoAnalysis import *
-from PhenoAnalysis import settings
+from Modules import *
 
 class processes:
 	"""These should be defined for each analysis - preselection cuts to select 'channels'"""

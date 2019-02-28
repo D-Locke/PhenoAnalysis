@@ -12,6 +12,7 @@ Python2.x, ROOT6.x, pyROOT, libDelphes, pandas, numpy, matplotlib, seaborn
 ...```pip install numpy pandas matplotlib seaborn```
 2. Install ROOT, as described here: https://root.cern.ch/pyroot and place libPyROOT.so in PYTHONPATH/LD_LIBRARY_PATH
 3. Build Delphes 3.x and place dir containing libDelphes.so in LD_LIBRARY_PATH (or place in e.g ~Packages/root/build/lib/root/)
+4. add environment var to bashrc/zshrc: export DELPHES=/path/to/delphes
 4. Make sure root is sourced, and libDelphes.so can be found
 ...```python -c "import ROOT"```
 5. If using ROOT6: In PhenoAnalysis/Modules/ROOTreader.py, lines 10,11 - change path to your Delphes dir
@@ -35,8 +36,10 @@ Python2.x, ROOT6.x, pyROOT, libDelphes, pandas, numpy, matplotlib, seaborn
 * combined ROOT and LHE codes, made shared modules
 * add better logic for signal specific backgrounds
 * parallelize object initialization
+* added new particle definitions that can select based on arbitrary ROOT leaf values (and fixed for LHE)
 
 ### Future:
+* automatic reading of SLHA in lhe headers, and produce instructive plots (decay maps)
 * add unit testing
 * improve preselection cuts to include cuts on user-supplied observables
 * use of multiple signal event files (like background)
@@ -51,6 +54,7 @@ Python2.x, ROOT6.x, pyROOT, libDelphes, pandas, numpy, matplotlib, seaborn
 * Improve storage of dataframes alongside metadata (in hdf5)
 * add support for hdf5 and compressing files, which stores ROOTdata metadata along with dataframe
 * Add decision trees, neural networks with scikit-learn?
+
 
 ## Useful docs
 * TLorentzVector: https://root.cern.ch/doc/master/classTLorentzVector.html
