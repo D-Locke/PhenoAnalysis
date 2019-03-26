@@ -5,15 +5,7 @@ if [ "$#" -ne 1 ]; then
 fi
 
 mkdir $1
-mkdir $1/cutNplot
-mkdir $1/cutNplot/LHE
-mkdir $1/cutNplot/LHE/Plots
-mkdir $1/cutNplot/LHE/Plots/dat
-mkdir $1/cutNplot/LHE/Dalitz
-mkdir $1/cutNplot/ROOT
-mkdir $1/cutNplot/ROOT/Plots
-mkdir $1/cutNplot/ROOT/Plots/dat
-mkdir $1/cutNplot/ROOT/Dalitz
+mkdir $1/Plots
 mkdir $1/data
 cp .run_template.py $1/$1.py
 
