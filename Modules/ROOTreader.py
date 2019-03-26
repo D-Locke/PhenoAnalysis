@@ -117,13 +117,15 @@ def readROOT(args):
                 
                 # CHECK BELOW WEIGHT IS CORRECT
                 observ = { 'EventWeight' : event.Event.At(0).Weight*luminosity*1000/LoadEvents }
-                for obs in observables:
-                    if mode=="custom":
+                if mode=="builtin":
+                    for obs in observables:  
+                        observ[obs] = obsObjs[obs].calc(event) 
+                if mode=="custom":  
+                    for obs in observables:                    
                         observ[obs] = calc_obs(Energy,obs,event,process.proc_label)
-                    if mode=="builtin":       
-                        observ[obs] = obsObjs[obs].calc(event)  
+                       
             
-                    obj.obs=obj.obs.append(observ, ignore_index=True)
+                obj.obs=obj.obs.append(observ, ignore_index=True)
                 del observ
         obj.saveObs()
 

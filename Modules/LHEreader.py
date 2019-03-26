@@ -289,12 +289,13 @@ def readLHE(args):
                         #sumEe=500
                         #print "sqrt(sHat): {} \t max E+-Pz out: {} \t diff: {}".format(sumEe,max(sumEpPz,sumEmPz),sumEe-max(sumEpPz,sumEmPz))
 
-                        for obs in observables:
-                        #JET1,JET2,MUON = partList
-                            if mode=="custom":
+                        if mode=="builtin":
+                            for obs in observables:  
+                                observ[obs] = obsObjs[obs].calc(event) 
+                        if mode=="custom":  
+                            for obs in observables:                    
                                 observ[obs] = calc_obs(Energy,obs,event,process.proc_label)
-                            if mode=="builtin":
-                                observ[obs] = obsObjs[obs].calc(event)                
+                                     
                         obj.obs=obj.obs.append(observ, ignore_index=True)
              
             obj.saveObs()

@@ -41,6 +41,12 @@ if __name__ == '__main__':
 	# some of this crap should go in global dict
 	settings.init(AnalysisName, Energy, luminosity, process, observables, mode='Custom', BGsys=0.0, calc_s95=True)
 
+	# Custom particle definitions - name, branchName, PID required, other kwargs may be requested (so long as ROOT leaf exists with same name)
+	# lists should be given as kwargs, meaning "if X list contains branch.X"
+	# parts = part.partDefs()
+	# parts.add("C+","Chp", PID=[1000024],Status=[62])
+	# parts.add("C-","Chm", PID=[-1000024],Status=[62])
+
 	rootDir='.'			# directory of event files
 	args=[]				# [ name, LoadEvents, luminosity, label, type, model, process, observables, plotStyle ]
 
