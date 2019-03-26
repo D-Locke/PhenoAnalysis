@@ -34,7 +34,11 @@ class partDef():
 class partDefs(dict):
 	""" should also write function that attempts to generate this from either LHE or ROOT... """
 	def add(self, name, branchName, PID, **kwargs):
-		self[name] = partDef(name, branchName, PID, **kwargs)
+		if name in self:
+			exit('Particle name {} already used!'.format(name))
+		else:
+			self[name] = partDef(name, branchName, PID, **kwargs)
+			
 
 	def __str__(self):
 		string='All particle definitions \n===================\n'
