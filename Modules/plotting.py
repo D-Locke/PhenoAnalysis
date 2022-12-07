@@ -142,7 +142,7 @@ def Significance(SIG,SMtot):
     sig=[]
     for S,BG in zip(SIG,SMtot):
         if BG > 0.0:
-            sig.append(S/math.sqrt(BG))
+            sig.append(S/math.sqrt(S+BG))
         else:
             sig.append(float('nan'))
     return sig
@@ -156,13 +156,13 @@ def shadeCut(plot,cuts,ax):
             ax.axvspan(xlims[0], cuts[cut][0], alpha=0.2, color='red')
             ax.axvspan(cuts[cut][1], xlims[1], alpha=0.2, color='red')
 
-def annotateHist(objects,ax):
+def annotateHist(objects,ax,fontsize):
     """ Just adds luminosity info atm """
     props = dict(facecolor='white', alpha=1.0,pad=3.0)
     textstr="{}\n$\mathcal{{L}}_{{int}}={:.0f} fb^{{-1}}$".format(settings.globDict["AnalysisName"],settings.globDict["Lumi"])
     #textstr="$\mathcal{{L}}_{{int}}={:.0f} fb^{{-1}}$".format(objects[0].luminosity)
     #textstr="$\mathcal{{L}}_{{int}}={:.0f} fb^{{-1}}$".format(objects[0].luminosity)
-    ax.text(0.02, 0.97, textstr, transform=ax.transAxes, fontsize=9,
+    ax.text(0.02, 1.08, textstr, transform=ax.transAxes, fontsize=fontsize,
         verticalalignment='top', bbox=props)
 
 def HistPlot(objects, plots, cutlabel,**kwargs):
@@ -174,6 +174,10 @@ def HistPlot(objects, plots, cutlabel,**kwargs):
     observables=plots
 
     for plot in plots:
+        if "fontsize" in plot:
+            fontsize=plot["fontsize"]
+        else:
+            fontsize=11
 
         fig, (ax1, ax2) = plt.subplots(2, sharex=True, gridspec_kw = {'height_ratios':[3, 1]})
         fig.subplots_adjust(hspace=0)
@@ -181,9 +185,10 @@ def HistPlot(objects, plots, cutlabel,**kwargs):
         df=pd.DataFrame({'BIN_CENTRE':getBinCenters(plot)})
         #plt.title('$e^+e^- \\to j,j,\\mu,\\nu(+D,D)$ at '+str(objects[0].luminosity)+'$fb^{-1}$ (AFTER '+cutlabel+')')
         ax1.set_yscale(plot["yscale"])
-        ax1.set_xlabel(getLabel(x))
-        ax1.set_ylabel('Events / Bin')
-        annotateHist(objects,ax1)
+        ax1.set_xlabel(getLabel(x), fontsize=fontsize)
+        ax1.set_ylabel('Events / Bin', fontsize=fontsize)
+        annotateHist(objects,ax1,fontsize)
+
 
 
         hists={} 
@@ -209,11 +214,29 @@ def HistPlot(objects, plots, cutlabel,**kwargs):
             df['{}_sumW2'.format(obj.flabel)]=hists_sumW2[obj.flabel][0]
             #plt.hist(obj.obs[x], nbins, range=getRange(x),weights=obj.obs['EventWeight'], label=obj.label, histtype = 'step', linestyle=obj.plotStyle['linestyle'],color=obj.plotStyle['color'])
         #axes[1].scatter(df[x],df[y], c=df['OMEGA'],cmap='jet',s=0.1,rasterized=True,norm=norm)
-        ax1.legend(fontsize=8,bbox_to_anchor=(1, 1), loc=1, borderaxespad=0)#loc='upper left', prop={'size':6}, bbox_to_anchor=(1,1))
+        ax1.legend(fontsize=fontsize-1,bbox_to_anchor=(1.1, 1.1), loc=1, borderaxespad=0, framealpha=1.0)#loc='upper left', prop={'size':6}, bbox_to_anchor=(1,1))
         
-        #ax1.set_ylim(ymin=0.1,ymax=1.1*ax1.get_ylim()[1])#,ymax=400)
-        #ax1.tight_layout()
-        ax1.yaxis.get_major_ticks()[0].set_visible(False)
+        # HERE TO PUT LEG OUTSIDE #################
+        # Shrink current axis by 20%
+        # box = ax1.get_position()
+        # ax1.set_position([box.x0, box.y0, box.width * 0.8, box.height])
+        # box2 = ax2.get_position()
+        # ax2.set_position([box2.x0, box2.y0, box2.width * 0.8, box2.height])
+
+        # # Put a legend to the right of the current axis
+        # ax1.legend(loc='center left', bbox_to_anchor=(1, 0.5))
+        ##############################################
+
+
+        if "xlim" in plot:
+            ax1.set_xlim(plot["xlim"])
+        if "ylim" in plot:
+            ax1.set_ylim(plot["ylim"])
+
+
+        # print ax1.axes.get_yticklabels()[1:]#.insert(0,'')
+        # exit()
+
 
         # SIGNIFICANCE
         SMevents=[]
@@ -226,13 +249,25 @@ def HistPlot(objects, plots, cutlabel,**kwargs):
                 ax2.step(hists[obj.flabel][1],[0.0]+Significance(df[obj.flabel],SMevents),color=obj.plotStyle['color'],linestyle=obj.plotStyle['linestyle'])
 
 
-        ax2.set_ylabel("$\\frac{{S}}{{\\sqrt{{B}}}}$")
-        ax2.set_xlabel(getLabel(x))
+        ax2.set_ylabel("$\\frac{{S}}{{\\sqrt{{S+B}}}}$", fontsize=fontsize)
+        ax2.set_xlabel(getLabel(x), fontsize=fontsize)
+        ax2.set_yscale("log")
+        
+
+
+        if "signif_ylim" in plot:
+            ax2.set_ylim(plot["signif_ylim"])
+            #ax2.set_yticks(ax2.get_yticks()[:-1])
+
 
         
         if showCuts:
             cuts=kwargs.get('cuts',False)
             shadeCut(plot,cuts,ax1)
+
+        fig.canvas.draw()
+        y_ticks = ax1.yaxis.get_major_ticks()
+        y_ticks[1].label.set_visible(False) ## set first x tick label invisible
 
         fig.savefig('./Plots/'+str(objects[0].filetype)+'_plot_'+x+'_'+cutlabel+'.pdf')
         df.to_csv('./Plots/'+str(objects[0].filetype)+'_plot_'+x+'_'+cutlabel+'.dat', sep='\t', encoding='utf-8')

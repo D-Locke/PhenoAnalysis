@@ -6,13 +6,15 @@ Runs/*
 !Runs/example1
 Runs/example1/*.png
 Runs/example1/*.pdf
-Runs/example1/cutNplot/LHE/Plots/*.pdf
-Runs/example1/cutNplot/LHE/Plots/dat/*.dat
+Runs/example2/*.dat
+Runs/example2/*.log
+Runs/example2/*.html
 Runs/example1/data/*.dat*
 !Runs/example2
 Runs/example2/*.png
 Runs/example2/*.pdf
-Runs/example2/cutNplot/ROOT/Plots/*.pdf
-Runs/example2/cutNplot/ROOT/Plots/dat/*.dat
+Runs/example2/*.dat
+Runs/example2/*.log
+Runs/example2/*.html
 Runs/example2/data/*.dat*
 

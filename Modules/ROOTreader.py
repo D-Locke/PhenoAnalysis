@@ -46,7 +46,13 @@ class partList(list):
     def GetEntries(self):
         return len(self)
 
-
+def getDatName(obj, LoadEvents):
+    for f in os.listdir('./data/'):
+        if f.startswith(obj.flabel+'_') and f.endswith('_obs_'+str(obj.filetype)+'.dat.gz'):
+            if [int(s) for s in f.split('_') if s.isdigit()][0] >= LoadEvents:
+                return './data/'+f      
+    return ''
+    
 def readROOT(args):
     """Will parse root file into ROOTData object"""
     filename,LoadEvents,label,type,model,plotStyle,recalc = args

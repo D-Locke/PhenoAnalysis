@@ -2,8 +2,7 @@ import sys
 import os.path
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), os.path.pardir,os.path.pardir)))
 import collections
-from PhenoAnalysis import *
-from PhenoAnalysis import settings
+from Modules import *
 
 class processes:
 	"""These should be defined for each analysis - preselection cuts to select 'channels'"""
@@ -16,7 +15,7 @@ class processes:
 		return False
 
 	def mycuts(self,event):
-
+		return True
 
 	def preselection(self,event):
 		""" see definitions in PhenoAnalysis/preselection.py """
@@ -25,7 +24,7 @@ class processes:
 		filterPhaseSpace(event.Jet, 20, -3.0, 3.0)
 		overlapRemoval(event.Jet,event.Electron,0.2)
 		overlapRemoval_2(event.Electron,event.Jet,0.2,0.4)
-		overlapRemoval_jm(event.Muon, event.Jet, event.Track,deltaR=0.5,matchingTracks=3)
+		#overlapRemoval_jm(event.Muon, event.Jet, event.Track,deltaR=0.5,matchingTracks=3)
 		return 0
 
 	def selection(self,event):
@@ -41,7 +40,7 @@ if __name__ == '__main__':
 	process=processes("semi_lept")		#  preselection cuts for defining different channels contained within single file
 
 	# some of this crap should go in global dict
-	settings.init(AnalysisName, Energy, luminosity, process, observables, mode='Custom', BGsys=0.1, calc_s95=True)
+	settings.init(AnalysisName, Energy, luminosity, process, observables, mode='Custom', BGsys=0.1, calc_s95=False)
 
 	rootDir='.'			# directory of event files
 	args=[]				# [ name, LoadEvents, luminosity, label, type, model, process, observables, plotStyle ]
